@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes | SAMAND TECH</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dashboard-page">
+    
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h3>SAMAND TECH</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html"><i class="fa-solid fa-ticket"></i> Tickets</a>
+            <a href="clientes.html" class="active"><i class="fa-solid fa-users"></i> Clientes</a>
+            <a href="#"><i class="fa-solid fa-chart-line"></i> Reportes</a>
+            <a href="#" id="btn-config"><i class="fa-solid fa-gear"></i> Configuración</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logout-btn">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="search-bar">
+                <input type="text" id="search-company" placeholder="Buscar empresa o RIF...">
+            </div>
+            <div class="user-info">
+                <span id="user-display-name">Cargando...</span>
+                <div class="avatar">SL</div>
+            </div>
+        </header>
+
+        <section class="content-area">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-title">Empresas Totales</span>
+                    <span class="stat-value" id="total-companies">0</span>
+                </div>
+                <div class="stat-card success">
+                    <span class="stat-title">SLA Cumplido</span>
+                    <span class="stat-value">98%</span>
+                </div>
+            </div>
+
+            <div class="header-section">
+                <h2>Directorio de Empresas</h2>
+                <div class="header-actions">
+                    <button class="btn-primary" id="btn-open-company-modal">+ Registrar Empresa</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="main-table">
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>RIF</th>
+                            <th>Contacto Directo</th>
+                            <th>Teléfono</th>
+                            <th>Plan</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="company-list-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="company-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Registrar Nueva Empresa</h2>
+                    <button id="close-company-modal" class="btn-close">&times;</button>
+                </div>
+                <form id="new-company-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre de la Empresa</label>
+                            <input type="text" id="company-name" placeholder="Ej: Radio Caracas" required>
+                        </div>
+                        <div class="form-group">
+                            <label>RIF</label>
+                            <input type="text" id="company-rif" placeholder="J-12345678-0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Persona de Contacto</label>
+                            <input type="text" id="company-contact" placeholder="Nombre del encargado" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Plan de Servicio</label>
+                            <select id="company-plan" required>
+                                <option value="Bronce">Plan Bronce (Básico)</option>
+                                <option value="Plata">Plan Plata (Intermedio)</option>
+                                <option value="Oro">Plan Oro (Avanzado)</option>
+                                <option value="Premium">Plan Premium (Full)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Teléfono / WhatsApp</label>
+                            <input type="text" id="company-phone" placeholder="0412-0000000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico</label>
+                            <input type="email" id="company-email" placeholder="contacto@empresa.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dirección Física (Sede)</label>
+                        <textarea id="company-address" rows="2" placeholder="Ej: Av. Principal de..."></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" id="cancel-company-btn">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="save-company-btn">Guardar Empresa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="view-company-modal" class="modal-overlay">
+            <div class="modal-content company-card-pro">
+                <div class="modal-header-pro">
+                    <div class="header-title-area">
+                        <i class="fa-solid fa-building-user"></i>
+                        <div>
+                            <h2 id="info-name">Nombre de Empresa</h2>
+                            <span id="info-rif-top">J-00000000-0</span>
+                        </div>
+                    </div>
+                    <button class="btn-close-pro close-info-modal">&times;</button>
+                </div>
+                
+                <div class="info-body-pro">
+                    <div class="info-main-grid">
+                        <div class="info-item">
+                            <i class="fa-solid fa-id-card"></i>
+                            <div>
+                                <label>RIF Legal</label>
+                                <p id="info-rif">---</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fa-solid fa-handshake"></i>
+                            <div>
+                                <label>Plan de Servicio</label>
+                                <p id="info-plan">---</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <div>
+                                <label>Encargado / Contacto</label>
+                                <p id="info-contact">---</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fa-solid fa-phone-flip"></i>
+                            <div>
+                                <label>Teléfono Directo</label>
+                                <p id="info-phone">---</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="info-contact-grid">
+                        <div class="info-item full-width">
+                            <i class="fa-solid fa-envelope"></i>
+                            <div>
+                                <label>Correo Electrónico Corporativo</label>
+                                <p id="info-email">---</p>
+                            </div>
+                        </div>
+                        <div class="info-item full-width">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <div>
+                                <label>Dirección Física (Sede Principal)</label>
+                                <p id="info-address">---</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer-pro">
+                    <button class="btn-primary-pro edit-from-view-btn">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar Información
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="user-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Registrar Nuevo Usuario</h2>
+                    <button id="close-user-modal" class="btn-close">&times;</button>
+                </div>
+                <form id="new-user-form">
+                    <div class="form-group">
+                        <label>Nombre y Apellido</label>
+                        <input type="text" id="user-full-name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rol</label>
+                            <select id="user-role" required>
+                                <option value="tech">Técnico</option>
+                                <option value="client">Cliente</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Correo</label>
+                            <input type="email" id="user-email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="user-password" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" id="cancel-user-btn">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="save-user-btn">Crear Usuario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="toast-container" class="toast-container"></div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="assets/js/clientes.js"></script>
+</body>
+</html>

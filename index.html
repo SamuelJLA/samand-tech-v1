@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | SAMAND TECH</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dashboard-page">
+    
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h3>SAMAND TECH</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="active"><i class="fa-solid fa-ticket"></i> Tickets</a>
+            <a href="clientes.html"><i class="fa-solid fa-users"></i> Clientes</a>
+            <a href="#"><i class="fa-solid fa-chart-line"></i> Reportes</a>
+            <a href="#" id="btn-config"><i class="fa-solid fa-gear"></i> Configuración</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logout-btn">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="search-bar">
+                <input type="text" placeholder="Buscar ticket o cliente...">
+            </div>
+            <div class="user-info">
+                <span id="user-display-name">Cargando...</span>
+                <div class="avatar">SL</div>
+            </div>
+        </header>
+
+        <section class="content-area">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-title">Tickets Abiertos</span>
+                    <span class="stat-value" id="count-open">0</span>
+                </div>
+                <div class="stat-card danger">
+                    <span class="stat-title">Vencidos (SLA)</span>
+                    <span class="stat-value" id="count-expired">0</span>
+                </div>
+                <div class="stat-card warning">
+                    <span class="stat-title">Sin Asignar</span>
+                    <span class="stat-value" id="count-unassigned">0</span>
+                </div>
+                <div class="stat-card success">
+                    <span class="stat-title">CSAT</span>
+                    <span class="stat-value">4.8/5</span>
+                </div>
+            </div>
+
+            <div class="header-section">
+                <h2>Panel de Tickets Reales</h2>
+                <div class="header-actions">
+                    <button class="btn-secondary"><i class="fa-solid fa-filter"></i> Filtrar</button>
+                    <button class="btn-primary" id="btn-open-modal">+ Nuevo Ticket</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="main-table">
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Cliente / Empresa</th>
+                            <th>Asunto</th>
+                            <th>Técnico</th> 
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticket-list-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="ticket-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Generar Nuevo Ticket</h2>
+                    <button id="close-modal" class="btn-close">&times;</button>
+                </div>
+                <form id="new-ticket-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Cliente / Empresa</label>
+                            <select id="client-select" required> 
+                                <option value="" disabled selected>Cargando empresas...</option>
+                                </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Asignar Técnico / Responsable</label>
+                            <select id="tech-select" required>
+                                <option value="" disabled selected>Cargando equipo...</option>
+                                </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prioridad</label>
+                            <select id="priority-select" required> 
+                                <option value="low">Baja</option>
+                                <option value="medium">Media</option>
+                                <option value="high">Alta</option>
+                                <option value="critical">Crítica</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Asunto del Problema</label>
+                            <input type="text" id="subject-input" placeholder="Ej: Falla de Servidor" required> 
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción Detallada</label>
+                        <textarea id="description-input" rows="4" placeholder="Detalles adicionales para el técnico..."></textarea> 
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" id="cancel-btn">Cancelar</button>
+                        <button type="submit" class="btn-primary">Crear Ticket</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="user-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Registrar Nuevo Usuario</h2>
+                    <button id="close-user-modal" class="btn-close">&times;</button>
+                </div>
+                <form id="new-user-form">
+                    <div class="form-group">
+                        <label>Nombre y Apellido</label>
+                        <input type="text" id="user-full-name" placeholder="Ej: Jose Delgado" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rol en el Sistema</label>
+                            <select id="user-role" required>
+                                <option value="tech">Técnico</option>
+                                <option value="client">Cliente</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico</label>
+                            <input type="email" id="user-email" placeholder="correo@samandtech.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña Inicial</label>
+                        <input type="password" id="user-password" placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" id="cancel-user-btn">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="save-user-btn">Crear Acceso</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="view-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="view-ticket-id">Detalle del Ticket</h2>
+                    <button class="btn-close close-view">&times;</button>
+                </div>
+                <div class="view-grid">
+                    <div class="view-item"><strong>Cliente:</strong> <span id="view-client">---</span></div>
+                    <div class="view-item"><strong>Técnico:</strong> <span id="view-tech">---</span></div>
+                    <div class="view-item"><strong>Prioridad:</strong> <span id="view-priority">---</span></div>
+                    <div class="view-item"><strong>Estado:</strong> <span id="view-status">---</span></div>
+                </div>
+                <div class="view-description">
+                    <label>Descripción original:</label>
+                    <p id="view-desc">...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="attend-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Atender Ticket</h2>
+                    <button class="btn-close close-attend">&times;</button>
+                </div>
+                <form id="attend-form">
+                    <div class="form-group">
+                        <label>Notas Técnicas (Bitácora)</label>
+                        <textarea id="attend-notes" rows="4" placeholder="Escribe qué estás haciendo para resolverlo..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Cambiar Estado:</label>
+                        <select id="attend-status">
+                            <option value="in-progress">En Proceso</option>
+                            <option value="resolved">Resuelto / Cerrar</option>
+                            <option value="pending">Esperando respuesta de cliente</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-primary">Actualizar Ticket</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="toast-container" class="toast-container"></div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="assets/js/dashboard.js"></script>
+</body>
+</html>
