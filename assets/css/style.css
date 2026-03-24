@@ -751,3 +751,199 @@ input:focus {
 .btn-primary-pro:hover {
     background-color: #1d4ed8;
 }
+
+.dashboard-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.split-column {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.mini-table {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.btn-primary-sm, .btn-secondary-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary-sm { background: var(--primary-color); color: white; }
+.btn-secondary-sm { background: #64748b; color: white; }    
+
+/* DISEÑO DE TABS */
+.modal-tabs {
+    display: flex;
+    position: relative;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+
+.tab-item {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: #64748b;
+    transition: color 0.3s;
+}
+
+.tab-item.active {
+    color: var(--primary-color);
+}
+
+.tab-indicator {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 50%;
+    height: 2px;
+    background: var(--primary-color);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animación de entrada del modal */
+.modal-animated {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.calendar-section {
+    background: white;
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 50px; /* Espacio al final */
+}
+
+#calendar {
+    max-width: 100%;
+    margin: 0 auto;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Colores personalizados para los eventos */
+.fc-event {
+    cursor: pointer;
+    border: none !important;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+/* Estilo del Tooltip (El hover que querías) */
+.fc-event:hover {
+    filter: brightness(0.9);
+    transform: scale(1.02);
+    transition: all 0.2s;
+}
+
+.fc-toolbar-title {
+    font-size: 1.2rem !important;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* CONTENEDOR PRINCIPAL DEL TOOLTIP */
+.tooltip-container {
+    position: absolute;
+    z-index: 9999;
+    pointer-events: none; /* Para que no estorbe al mover el mouse */
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* EFECTO GLASSMORFISMO */
+.calendar-tooltip-glass {
+    background: rgba(255, 255, 255, 0.7); /* Fondo semi-transparente */
+    backdrop-filter: blur(10px); /* El desenfoque tipo vidrio */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    color: #1e293b;
+    min-width: 200px;
+}
+
+.calendar-tooltip-glass h4 {
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calendar-tooltip-glass p {
+    margin: 5px 0;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calendar-tooltip-glass i {
+    width: 16px;
+    text-align: center;
+    color: #64748b;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tooltip-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding-bottom: 8px;
+}
+
+.tooltip-header h4 {
+    margin: 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #1e293b;
+}
+
+/* La pildorita de color al lado del título */
+.tooltip-tag {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Sombra más suave para el efecto Glass */
+.calendar-tooltip-glass {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.status-pill.in_progress {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #7dd3fc;
+}
