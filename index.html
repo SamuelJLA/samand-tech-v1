@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | SAMAND TECH</title>
+    <title>Dashboard | SAMANDTECH</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 </head>
 <body class="dashboard-page">
     
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <h3>SAMAND TECH</h3>
+            <h3>SAMANDTECH</h3>
         </div>
         <nav class="sidebar-nav">
             <a href="index.html" class="active"><i class="fa-solid fa-ticket"></i> Tickets</a>
@@ -43,43 +45,122 @@
                     <span class="stat-value" id="count-open">0</span>
                 </div>
                 <div class="stat-card danger">
-                    <span class="stat-title">Vencidos (SLA)</span>
+                    <span class="stat-title">Incidencias Críticas</span>
                     <span class="stat-value" id="count-expired">0</span>
                 </div>
-                <div class="stat-card warning">
-                    <span class="stat-title">Sin Asignar</span>
-                    <span class="stat-value" id="count-unassigned">0</span>
+                <div class="stat-card info">
+                    <span class="stat-title">Mantenimientos Mes</span>
+                    <span class="stat-value" id="count-maintenance">0</span>
                 </div>
                 <div class="stat-card success">
-                    <span class="stat-title">CSAT</span>
-                    <span class="stat-value">4.8/5</span>
+                    <span class="stat-title">Satisfacción (CSAT)</span>
+                    <span class="stat-value">4.9/5</span>
                 </div>
             </div>
 
-            <div class="header-section">
-                <h2>Panel de Tickets Reales</h2>
-                <div class="header-actions">
-                    <button class="btn-secondary"><i class="fa-solid fa-filter"></i> Filtrar</button>
-                    <button class="btn-primary" id="btn-open-modal">+ Nuevo Ticket</button>
+            <div class="dashboard-split">
+                <div class="split-column">
+                    <div class="header-section">
+                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Incidencias y Requerimientos</h3>
+                        <button class="btn-primary-sm" id="btn-open-modal">+ Nueva Falla</button>
+                    </div>
+                    <div class="table-container mini-table">
+                        <table class="main-table">
+                            <thead>
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Empresa</th>
+                                    <th>Asunto</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th> </tr>
+                            </thead>
+                            <tbody id="incidence-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="split-column">
+                    <div class="header-section">
+                        <h3><i class="fa-solid fa-tools"></i> Mantenimientos</h3>
+                        <button class="btn-secondary-sm" id="btn-open-mtto">+ Programar</button>
+                    </div>
+                    <div class="table-container mini-table">
+                        <table class="main-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Empresa</th>
+                                    <th>Fecha</th>
+                                    <th>Técnico</th>
+                                    <th>Acciones</th> </tr>
+                            </thead>
+                            <tbody id="maintenance-list-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="table-container">
-                <table class="main-table">
-                    <thead>
-                        <tr>
-                            <th>Ticket</th>
-                            <th>Cliente / Empresa</th>
-                            <th>Asunto</th>
-                            <th>Técnico</th> 
-                            <th>Prioridad</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ticket-list-body">
-                        </tbody>
-                </table>
+            <div id="ticket-modal" class="modal-overlay">
+                <div class="modal-content modal-animated">
+                    <div class="modal-tabs">
+                        <div class="tab-item active" data-tab="incidence">Falla / Requerimiento</div>
+                        <div class="tab-item" data-tab="maintenance">Mantenimiento Preventivo</div>
+                        <div class="tab-indicator"></div>
+                    </div>
+                    
+                    <form id="new-ticket-form">
+                        <input type="hidden" id="ticket-type-input" value="incidence">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Cliente / Empresa</label>
+                                <select id="client-select" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Asignar Técnico</label>
+                                <select id="tech-select"></select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Prioridad / Urgencia</label>
+                                <select id="priority-select">
+                                    <option value="low">Baja</option>
+                                    <option value="medium">Media</option>
+                                    <option value="high">Alta</option>
+                                    <option value="critical">Crítica</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="date-group" style="display: none;">
+                                <label>Fecha Programada</label>
+                                <input type="date" id="scheduled-date">
+                            </div>
+                            <div class="form-group" id="subject-group">
+                                <label>Asunto</label>
+                                <input type="text" id="subject-input" placeholder="Ej: Falla de internet">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Descripción / Observaciones</label>
+                            <textarea id="description-input" rows="3"></textarea>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn-secondary" id="cancel-btn">Cancelar</button>
+                            <button type="submit" class="btn-primary" id="submit-ticket-btn">Crear Ticket</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="calendar-section">
+                <div class="header-section">
+                    <h3><i class="fa-solid fa-calendar-days"></i> Cronograma de Operaciones SAMAND</h3>
+                </div>
+                <div id="calendar-container">
+                    <div id="calendar"></div>
+                </div>
             </div>
         </section>
 
