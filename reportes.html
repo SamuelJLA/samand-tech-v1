@@ -1,25 +1,86 @@
-<section class="content-area">
-    <div class="header-section">
-        <h2><i class="fa-solid fa-clock-rotate-left"></i> Historial de Tickets (Reportes)</h2>
-        <div class="filters">
-            <input type="text" id="search-history" placeholder="Buscar por cliente o asunto...">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes | SAMAND TECH</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dashboard-page"> 
+    
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h3>SAMANDTECH</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html"><i class="fa-solid fa-ticket"></i> Tickets</a>
+            <a href="clientes.html"><i class="fa-solid fa-users"></i> Clientes</a>
+            <a href="reportes.html" class="active"><i class="fa-solid fa-chart-line"></i> Reportes</a>
+            <a href="#" id="btn-config"><i class="fa-solid fa-gear"></i> Configuración</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logout-btn">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="search-bar">
+                <input type="text" id="search-report" placeholder="Buscar en el historial...">
+            </div>
+            <div class="user-info">
+                <span id="user-display-name">Cargando...</span>
+                <div class="avatar">SL</div>
+            </div>
+        </header>
+
+        <section class="content-area">
+            <div class="header-section">
+                <div class="welcome-text">
+                    <h1><i class="fa-solid fa-clock-rotate-left"></i> Historial de Servicios</h1>
+                    <p>Tickets cerrados y solventados</p>
+                </div>
+            </div>
+
+            <div class="table-container shadow-lg">
+                <table class="main-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha Cierre</th>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Asunto Final</th>
+                            <th>Técnico</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reports-list-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="view-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="view-ticket-id">Detalle del Servicio</h2>
+                <button class="btn-close close-view">&times;</button>
+            </div>
+            <div id="view-modal-body" class="modal-body-padding">
+                </div>
         </div>
     </div>
 
-    <div class="table-container shadow-lg">
-        <table class="main-table">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Cliente</th>
-                    <th>Tipo</th>
-                    <th>Asunto</th>
-                    <th>Técnico</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="reports-list-body">
-                </tbody>
-        </table>
-    </div>
-</section>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script type="module">
+        import { initUniversalSettings } from './assets/js/settings.js';
+        initUniversalSettings();
+    </script>
+
+    <script type="module" src="./assets/js/reportes.js"></script>
+
+</body>
+</html>

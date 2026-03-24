@@ -22,6 +22,10 @@ const closeAllModals = () => {
 
     if (newCompanyForm) newCompanyForm.reset();
     editingCompanyId = null;
+
+    // Ocultamos el botón de eliminar al cerrar
+    const btnDelete = document.getElementById('btn-delete-company');
+    if (btnDelete) btnDelete.style.display = 'none';
     
     // Resetear textos del modal
     const modalTitle = document.querySelector('#company-modal h2');
@@ -171,6 +175,10 @@ companyListBody.addEventListener('click', (e) => {
     if (e.target.closest('.edit-btn')) {
         if (company) {
             editingCompanyId = companyId;
+
+            // MOSTRAR BOTÓN ELIMINAR
+            const btnDelete = document.getElementById('btn-delete-company');
+            if (btnDelete) btnDelete.style.display = 'block';
             
             // Cambiar textos del modal
             document.querySelector('#company-modal h2').innerText = `Editar Empresa: ${company.name}`;
@@ -197,3 +205,33 @@ companyListBody.addEventListener('click', (e) => {
 });
 
 fetchCompanies();
+
+// ============================================================
+// ELIMINAR EMPRESA
+// ============================================================
+const btnDeleteCompany = document.getElementById('btn-delete-company');
+
+if (btnDeleteCompany) {
+    btnDeleteCompany.addEventListener('click', async () => {
+        if (!editingCompanyId) return;
+
+        const companyName = document.getElementById('company-name').value;
+        
+        const confirmar = confirm(`⚠️ Samuel, ¿estás seguro de eliminar a "${companyName}"? \n\nEsto podría afectar los tickets asociados a esta empresa.`);
+
+        if (confirmar) {
+            const { error } = await supabase
+                .from('companies')
+                .delete()
+                .eq('id', editingCompanyId);
+
+            if (error) {
+                alert("❌ No se pudo eliminar: " + error.message);
+            } else {
+                showToast(`🗑️ Empresa "${companyName}" eliminada.`);
+                closeAllModals();
+                fetchCompanies(); // Recargar la tabla
+            }
+        }
+    });
+}

@@ -947,3 +947,226 @@ input:focus {
     color: #0369a1;
     border: 1px solid #7dd3fc;
 }
+
+/* Colores de prioridad para que resalten en el modal */
+.priority-low { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; }
+.priority-medium { background: #fef9c3; color: #854d0e; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; }
+.priority-high { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; }
+.priority-critical { background: #7f1d1d; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; }
+
+/* Caja para las recomendaciones (Color ámbar/azul suave para diferenciar) */
+.recommendation-box {
+    background: #f0f7ff;
+    padding: 1.2rem;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6; /* Azul informativo */
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: #1e3a8a;
+    margin-top: 10px;
+}
+
+/* Ajuste para el grid del modal para que quepan 4 items arriba */
+.view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.btn-ai-magic {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 8px rgba(168, 85, 247, 0.3);
+}
+
+.btn-ai-magic:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    filter: brightness(1.1);
+}
+
+.btn-ai-magic:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Animación para cuando la IA está escribiendo */
+@keyframes ai-glow {
+    0% { box-shadow: 0 0 5px rgba(168, 85, 247, 0.2); }
+    50% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
+    100% { box-shadow: 0 0 5px rgba(168, 85, 247, 0.2); }
+}
+
+.ai-processing {
+    animation: ai-glow 1.5s infinite;
+    border-color: #a855f7 !important;
+}
+
+.table-container-mini {
+    max-height: 200px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.modal-divider {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+.user-admin-list td {
+    padding: 10px;
+    font-size: 0.9rem;
+}
+
+.btn-delete-user {
+    color: #e11d48;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.admin-settings-modal {
+    max-width: 650px; /* Un poco más ancho para la lista */
+}
+
+.modal-small {
+    max-width: 450px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn-sm {
+    padding: 8px 15px;
+    font-size: 0.85rem;
+}
+
+.table-container-full {
+    margin-top: 10px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.subtitle {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: -5px;
+}
+
+/* Tabla de Usuarios Estilizada */
+.user-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px; /* Espacio entre filas */
+}
+
+.user-table th {
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 10px 15px;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.user-row {
+    background: #ffffff;
+    transition: all 0.2s;
+}
+
+.user-row:hover {
+    background: #f8fafc;
+    transform: scale(1.01);
+}
+
+.user-row td {
+    padding: 12px 15px;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.user-row td:first-child { border-left: 1px solid #f1f5f9; border-radius: 8px 0 0 8px; }
+.user-row td:last-child { border-right: 1px solid #f1f5f9; border-radius: 0 8px 8px 0; }
+
+/* Select de Rol tipo Píldora */
+.role-pill-select {
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: #f1f5f9;
+}
+
+/* Botón de Guardar pequeño y elegante */
+.btn-save-mini {
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-save-mini:hover { background: #059669; }
+
+/* Espaciado en el Header del Modal */
+.admin-settings-modal .modal-header h2 {
+    margin-bottom: 5px; /* Separa el título del subtítulo */
+}
+
+.subtitle {
+    display: block;
+    margin-bottom: 15px; /* Separa el subtítulo de la tabla */
+    color: #64748b;
+}
+
+/* Botón de eliminar en el modal de edición */
+.btn-danger-outline {
+    background: transparent;
+    color: #e11d48;
+    border: 1px solid #e11d48;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-danger-outline:hover {
+    background: #e11d48;
+    color: white;
+}
+
+.confirm-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 2000;
+}
+.confirm-card {
+    background: white; padding: 25px; border-radius: 12px; max-width: 350px; text-align: center;
+    border-top: 5px solid #e11d48; /* Rojo de peligro */
+}
+.confirm-card i { font-size: 3rem; color: #e11d48; margin-bottom: 15px; }
+.confirm-buttons { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
