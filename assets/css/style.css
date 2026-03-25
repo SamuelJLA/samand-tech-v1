@@ -1170,3 +1170,26 @@ input:focus {
 }
 .confirm-card i { font-size: 3rem; color: #e11d48; margin-bottom: 15px; }
 .confirm-buttons { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+
+/* Estilo de la notificación - ACTUALIZADO */
+.toast {
+    background: #ffffff;
+    color: #1e293b;
+    padding: 16px 24px; /* Un poco más de aire para que sea elegante */
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600; /* Texto un poco más grueso para leerlo rápido */
+    border-left: 6px solid #ddd;
+    
+    /* Animación mejorada */
+    animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    
+    /* Transición para cuando el JS le cambie la opacidad al final */
+    transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+    
+    min-width: 300px; /* Para que no se vea chiquito */
+    pointer-events: all; /* Por si quieres que se pueda cerrar al hacer clic luego */
+}
