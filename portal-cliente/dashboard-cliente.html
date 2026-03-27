@@ -2,22 +2,135 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Cliente | SAMANDTECH</title>
-    <link rel="stylesheet" href="../assets/css/style.css"> </head>
-<body>
-    <div class="client-layout">
-        <header>
-            <h1>Bienvenido, <span id="client-company-name">Cargando empresa...</span></h1>
-        </header>
-        
-        <main>
-            <section id="my-tickets">
-                <h2>Mis Requerimientos Activos</h2>
-                <div id="tickets-container"></div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Cliente | SAMAND TECH</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="admin-body">
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../assets/img/logo.png" alt="SAMAND TECH">
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active"><i class="fa-solid fa-ticket"></i> Tickets</a>
+                <a href="#"><i class="fa-solid fa-chart-line"></i> Reportes</a>
+                <a href="#"><i class="fa-solid fa-gear"></i> Configuración</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn-logout-sidebar">
+                    <i class="fa-solid fa-power-off"></i> Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-info">
+                    <h2 id="company-name">Cargando empresa...</h2>
+                </div>
+                <div class="user-profile">
+                    <span id="user-name">Cargando...</span>
+                    <div class="avatar-circle">
+                        <img src="../assets/img/avatar-default.png" alt="Usuario" id="user-avatar">
+                    </div>
+                </div>
+            </header>
+
+            <section class="content-body">
+                <div class="header-actions">
+                    <h1>Mis Solicitudes</h1>
+                    <button id="btn-nuevo-ticket" class="btn-primary">
+                        <i class="fa-solid fa-plus"></i> Nuevo Requerimiento
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card pending">
+                        <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+                        <div class="stat-info">
+                            <h3>Pendientes</h3>
+                            <p id="count-pending">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card process">
+                        <div class="stat-icon"><i class="fa-solid fa-gears"></i></div>
+                        <div class="stat-info">
+                            <h3>En Proceso</h3>
+                            <p id="count-process">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card done">
+                        <div class="stat-icon"><i class="fa-solid fa-check-double"></i></div>
+                        <div class="stat-info">
+                            <h3>Completados</h3>
+                            <p id="count-done">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container card">
+                    <table id="tickets-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Asunto / Tipo</th>
+                                <th>Estado</th>
+                                <th>Última Actualización</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-tickets-body">
+                            </tbody>
+                    </table>
+                </div>
             </section>
         </main>
     </div>
 
+    <div id="modal-ticket" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-ticket"></i> Crear Nueva Solicitud</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form id="form-nuevo-ticket">
+                <div class="form-group">
+                    <label for="tipo_ticket">Tipo de Solicitud</label>
+                    <select id="tipo_ticket" required>
+                        <option value="Falla">Falla Técnica</option>
+                        <option value="Requerimiento">Nuevo Requerimiento</option>
+                        <option value="Mantenimiento">Mantenimiento Preventivo</option>
+                    </select>
+                </div>
+
+                <div id="campo-asunto" class="form-group">
+                    <label for="asunto">Asunto / Título</label>
+                    <input type="text" id="asunto" placeholder="Ej: No enciende el equipo, problema de red...">
+                </div>
+
+                <div id="campo-fecha" class="form-group" style="display: none;">
+                    <label for="fecha_programada">Fecha Sugerida</label>
+                    <input type="date" id="fecha_programada">
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" rows="4" placeholder="Describe brevemente el problema o requerimiento..." required></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary close-btn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Enviar Reporte</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="../assets/js/portal-cliente.js"></script>
 </body>
 </html>
