@@ -3,134 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Cliente | SAMAND TECH</title>
+    <title>Panel de Cliente | SAMANDTECH</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
 </head>
-<body class="admin-body">
-    <div class="dashboard-wrapper">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="../assets/img/logo.png" alt="SAMAND TECH">
+<body class="dashboard-page">
+    
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h3>SAMANDTECH</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard-cliente.html" class="active"><i class="fa-solid fa-ticket"></i> Mis Tickets</a>
+            <a href="reportes-cliente.html"><i class="fa-solid fa-chart-line"></i> Mis Reportes</a>
+            <a href="configuracion-cliente.html"><i class="fa-solid fa-gear"></i> Configuración</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logout-btn" class="btn-logout-sidebar">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="page-info">
+                <h2 id="company-name">Cargando empresa...</h2> 
             </div>
-            <nav class="sidebar-nav">
-                <a href="#" class="active"><i class="fa-solid fa-ticket"></i> Tickets</a>
-                <a href="#"><i class="fa-solid fa-chart-line"></i> Reportes</a>
-                <a href="#"><i class="fa-solid fa-gear"></i> Configuración</a>
-            </nav>
-            <div class="sidebar-footer">
-                <button id="logout-btn" class="btn-logout-sidebar">
-                    <i class="fa-solid fa-power-off"></i> Cerrar Sesión
-                </button>
+            <div class="user-info">
+                <span id="user-display-name">Cargando...</span> 
+                <div class="avatar" id="user-initials">--</div> 
             </div>
-        </aside>
+        </header>
 
-        <main class="main-content">
-            <header class="top-bar">
-                <div class="page-info">
-                    <h2 id="company-name">Cargando empresa...</h2>
+        <section class="content-area">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-title">Tickets Pendientes</span>
+                    <span class="stat-value" id="count-pending">0</span>
                 </div>
-                <div class="user-profile">
-                    <span id="user-name">Cargando...</span>
-                    <div class="avatar-circle">
-                        <img src="../assets/img/avatar-default.png" alt="Usuario" id="user-avatar">
-                    </div>
+                <div class="stat-card info">
+                    <span class="stat-title">En Proceso</span>
+                    <span class="stat-value" id="count-process">0</span>
                 </div>
-            </header>
+                <div class="stat-card success">
+                    <span class="stat-title">Resueltos</span>
+                    <span class="stat-value" id="count-done">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">SLA de Respuesta</span>
+                    <span class="stat-value">99.2%</span>
+                </div>
+            </div>
 
-            <section class="content-body">
-                <div class="header-actions">
-                    <h1>Mis Solicitudes</h1>
-                    <button id="btn-nuevo-ticket" class="btn-primary">
-                        <i class="fa-solid fa-plus"></i> Nuevo Requerimiento
-                    </button>
+            <div class="dashboard-full">
+                <div class="header-section">
+                    <h3><i class="fa-solid fa-list-ul"></i> Historial de Requerimientos</h3>
+                    <button class="btn-primary" id="btn-open-ticket-client">+ Nueva Solicitud</button>
                 </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card pending">
-                        <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
-                        <div class="stat-info">
-                            <h3>Pendientes</h3>
-                            <p id="count-pending">0</p>
-                        </div>
-                    </div>
-                    <div class="stat-card process">
-                        <div class="stat-icon"><i class="fa-solid fa-gears"></i></div>
-                        <div class="stat-info">
-                            <h3>En Proceso</h3>
-                            <p id="count-process">0</p>
-                        </div>
-                    </div>
-                    <div class="stat-card done">
-                        <div class="stat-icon"><i class="fa-solid fa-check-double"></i></div>
-                        <div class="stat-info">
-                            <h3>Completados</h3>
-                            <p id="count-done">0</p>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="table-container card">
-                    <table id="tickets-table">
+                    <table class="main-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Ticket</th>
                                 <th>Fecha</th>
                                 <th>Asunto / Tipo</th>
-                                <th>Estado</th>
-                                <th>Última Actualización</th>
+                                <th>Técnico Asignado</th> <th>Estado</th>
+                                <th>Acciones</th> 
                             </tr>
                         </thead>
                         <tbody id="client-tickets-body">
                             </tbody>
                     </table>
                 </div>
-            </section>
-        </main>
-    </div>
-
-    <div id="modal-ticket" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fa-solid fa-ticket"></i> Crear Nueva Solicitud</h2>
-                <span class="close-modal">&times;</span>
             </div>
-            <form id="form-nuevo-ticket">
-                <div class="form-group">
-                    <label for="tipo_ticket">Tipo de Solicitud</label>
-                    <select id="tipo_ticket" required>
-                        <option value="Falla">Falla Técnica</option>
-                        <option value="Requerimiento">Nuevo Requerimiento</option>
-                        <option value="Mantenimiento">Mantenimiento Preventivo</option>
-                    </select>
-                </div>
 
-                <div id="campo-asunto" class="form-group">
-                    <label for="asunto">Asunto / Título</label>
-                    <input type="text" id="asunto" placeholder="Ej: No enciende el equipo, problema de red...">
+            <div class="calendar-section card" style="margin-top: 30px; padding: 20px;">
+                <div class="header-section">
+                    <h3><i class="fa-solid fa-calendar-days"></i> Mi Cronograma de Servicios</h3>
                 </div>
-
-                <div id="campo-fecha" class="form-group" style="display: none;">
-                    <label for="fecha_programada">Fecha Sugerida</label>
-                    <input type="date" id="fecha_programada">
+                <div id="calendar-container" style="min-height: 500px;"> <div id="calendar"></div>
                 </div>
+            </div>
+        </section>
 
-                <div class="form-group">
-                    <label for="descripcion">Descripción</label>
-                    <textarea id="descripcion" rows="4" placeholder="Describe brevemente el problema o requerimiento..." required></textarea>
+        <div id="ticket-modal" class="modal-overlay">
+            <div class="modal-content modal-animated">
+                <div class="modal-tabs">
+                    <div class="tab-item active" data-tab="incidence">Falla Técnica</div>
+                    <div class="tab-item" data-tab="maintenance">Solicitar Mantenimiento</div>
+                    <div class="tab-indicator"></div>
+                </div>
+                
+                <form id="client-new-ticket-form">
+                    <input type="hidden" id="ticket-type-input" value="incidence">
+
+                    <div class="form-group" id="subject-group">
+                        <label>¿Cuál es el problema?</label>
+                        <input type="text" id="subject-input" placeholder="Ej: No tengo conexión a internet">
+                    </div>
+
+                    <div class="form-group" id="date-group" style="display: none;">
+                        <label>Fecha sugerida para visita</label>
+                        <input type="date" id="scheduled-date">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descripción / Observaciones</label>
+                        <textarea id="description-input" rows="4" placeholder="Danos más detalles para ayudarte mejor..." required></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" id="cancel-btn">Cerrar</button>
+                        <button type="submit" class="btn-primary">Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="toast-container" class="toast-container"></div>
+
+        <div id="view-ticket-modal" class="modal-overlay">
+            <div class="modal-content modal-detail">
+                <div class="modal-header">
+                    <div class="ticket-id-badge">Ticket #<span id="detail-id">---</span></div>
+                    <button class="btn-close" id="close-detail-btn">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="detail-header">
+                        <h2 id="detail-subject">Cargando asunto...</h2>
+                        <span id="detail-status" class="status-badge">---</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label><i class="fa-solid fa-calendar"></i> Fecha de Creación</label>
+                            <p id="detail-date">---</p>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fa-solid fa-user-gear"></i> Técnico Asignado</label>
+                            <p id="detail-tech">---</p>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fa-solid fa-tags"></i> Tipo de Servicio</label>
+                            <p id="detail-type">---</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-description">
+                        <label>Descripción del Requerimiento:</label>
+                        <div class="desc-box">
+                            <p id="detail-desc">...</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary close-btn">Cancelar</button>
-                    <button type="submit" class="btn-primary">Enviar Reporte</button>
+                    <button type="button" class="btn-secondary" id="close-detail-footer">Cerrar</button>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
 
-    <div id="toast-container" class="toast-container"></div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="../assets/js/portal-cliente.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <script type="module" src="../assets/js/client/portal-cliente.js"></script>
 </body>
 </html>

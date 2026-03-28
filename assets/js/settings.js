@@ -20,26 +20,22 @@ function showToast(message, type = 'success') {
     toast.innerHTML = `${icon} <span>${message}</span>`;
     container.appendChild(toast);
 
-    console.log("Toast mostrado:", message); // Para ver en la consola si se dispara
-
-    // Lo dejamos 4 segundos (4000ms) antes de empezar a desvanecerse
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(-20px)';
-        // Esperamos medio segundo más para borrarlo del mapa
         setTimeout(() => toast.remove(), 500);
     }, 4000);
 }
 
 export function initUniversalSettings() {
-    // 1. INYECCIÓN DEL HTML (Actualizado con el campo de Empresa)
+    // 1. INYECCIÓN DEL HTML
     const modalsHTML = `
         <div id="user-modal" class="modal-overlay">
             <div class="modal-content admin-settings-modal">
                 <div class="modal-header">
                     <div>
                         <h2><i class="fa-solid fa-users-gear"></i> Gestión de Usuarios</h2>
-                        <span class="subtitle" style="display:block; margin-top:5px; color:#64748b;">Administra los accesos de SAMAND TECH</span>
+                        <span class="subtitle" style="display:block; margin-top:5px; color:#64748b;">Administra los accesos de SAMANDTECH</span>
                     </div>
                     <div class="header-actions" style="display:flex; gap:10px; align-items:center;">
                         <button id="btn-open-register" class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">
@@ -87,7 +83,7 @@ export function initUniversalSettings() {
                         <div id="company-field-group" class="form-group" style="margin-top: 10px; display: none;">
                             <label>Empresa Asociada</label>
                             <select id="user-company-id" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
-                                <option value="">Cargando empresas...</option>
+                                <option value="">Seleccione una empresa...</option>
                             </select>
                         </div>
 
@@ -107,7 +103,6 @@ export function initUniversalSettings() {
 
     document.body.insertAdjacentHTML('beforeend', modalsHTML);
 
-    // REFERENCIAS
     const userModal = document.getElementById('user-modal');
     const createUserModal = document.getElementById('create-user-modal');
     const btnConfig = document.getElementById('btn-config');
@@ -117,19 +112,13 @@ export function initUniversalSettings() {
     const companyGroup = document.getElementById('company-field-group');
     const companySelect = document.getElementById('user-company-id');
 
-    // --- LÓGICA DE EMPRESAS PARA EL ROL CLIENTE (Actualizada a 'companies') ---
-async function loadCompanies() {
-    
-    const { data, error } = await supabase.from('companies').select('id, name').order('name'); 
-    
-    if (!error) {
-        const companySelect = document.getElementById('user-company-id');
-        companySelect.innerHTML = '<option value="">Seleccione una empresa...</option>' + 
-            data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-    } else {
-        console.error("Error cargando empresas:", error);
+    async function loadCompanies() {
+        const { data, error } = await supabase.from('companies').select('id, name').order('name'); 
+        if (!error && companySelect) {
+            companySelect.innerHTML = '<option value="">Seleccione una empresa...</option>' + 
+                data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
     }
-}
 
     roleSelect.addEventListener('change', (e) => {
         if (e.target.value === 'client') {
@@ -140,14 +129,10 @@ async function loadCompanies() {
         }
     });
 
-    // --- LÓGICA DE USUARIOS ---
     async function fetchAdminUsers() {
         const userListBody = document.getElementById('user-admin-list');
-        if (!userListBody) return;
-
-        // Seleccionamos también empresa_id para cuando editemos
         const { data: profiles, error } = await supabase.from('profiles').select('*').order('full_name');
-        if (error) return;
+        if (error || !userListBody) return;
 
         userListBody.innerHTML = profiles.map(p => `
             <tr style="border-bottom: 1px solid #f8f8f8;">
@@ -173,8 +158,8 @@ async function loadCompanies() {
                 document.getElementById('user-full-name').value = d.name;
                 document.getElementById('user-role').value = d.role;
                 document.getElementById('user-email').value = d.email;
+                document.getElementById('user-password').placeholder = "Dejar en blanco para no cambiar";
                 
-                // Si es cliente, cargar y marcar su empresa
                 if (d.role === 'client') {
                     companyGroup.style.display = 'block';
                     await loadCompanies();
@@ -191,7 +176,6 @@ async function loadCompanies() {
         });
     }
 
-    // EVENTOS
     if (btnConfig) {
         btnConfig.addEventListener('click', (e) => {
             e.preventDefault();
@@ -204,7 +188,8 @@ async function loadCompanies() {
         btnOpenRegister.addEventListener('click', () => {
             document.getElementById('new-user-form').reset();
             document.getElementById('edit-user-id').value = "";
-            companyGroup.style.display = 'none'; // Resetear vista de empresa
+            document.getElementById('user-password').placeholder = "Mínimo 6 caracteres";
+            companyGroup.style.display = 'none';
             document.getElementById('register-modal-title').innerText = 'Nuevo Usuario';
             document.getElementById('btn-save-user-form').innerText = 'Crear Usuario';
             document.getElementById('btn-delete-user').style.display = 'none';
@@ -212,92 +197,86 @@ async function loadCompanies() {
         });
     }
 
-    // Lógica de Logout
+    const userForm = document.getElementById('new-user-form');
+    if (userForm) {
+        userForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // VERIFICACIÓN: Vamos a ver qué ID estamos mandando
+            const idInput = document.getElementById('edit-user-id').value;
+            console.log("Enviando ID al server:", idInput); // Mira esto en la consola del navegador (F12)
+            const btnSave = document.getElementById('btn-save-user-form');
+            const originalText = btnSave.innerText;
+
+            const id = document.getElementById('edit-user-id').value;
+            const fullName = document.getElementById('user-full-name').value;
+            const role = document.getElementById('user-role').value;
+            const email = document.getElementById('user-email').value;
+            const password = document.getElementById('user-password').value;
+
+            // Validamos empresa_id: si es vacío, mandamos null
+            let companyId = null;
+            if (role === 'client') {
+                const select = document.getElementById('user-company-id');
+                companyId = select.value && select.value !== "" ? select.value : null;
+            }
+
+            try {
+                const { data, error } = await supabase.functions.invoke('create-user', {
+                    body: { 
+                        id: id || null, // Si no hay ID, mandamos null literal
+                        email: email, 
+                        password: password || null, 
+                        full_name: fullName, 
+                        role: role, 
+                        empresa_id: companyId 
+                    }
+                });
+
+                if (error) throw error;
+
+                showToast(id ? "¡Usuario actualizado!" : "🚀 ¡Acceso creado!", "success");
+                createUserModal.style.display = 'none';
+                fetchAdminUsers();
+            } catch (err) {
+                console.error("Error:", err);
+                showToast("Fallo: " + err.message, "error");
+            } finally {
+                btnSave.innerText = originalText;
+                btnSave.disabled = false;
+            }
+        });
+    }
+
     if (btnLogout) {
         btnLogout.addEventListener('click', async (e) => {
             e.preventDefault();
-            if (confirm("¿Cerrar sesión en SAMAND TECH?")) {
+            if (confirm("¿Cerrar sesión?")) {
                 const { error } = await supabase.auth.signOut();
                 if (!error) window.location.href = 'login.html';
             }
         });
     }
 
-    // --- LÓGICA PARA GUARDAR O ACTUALIZAR USUARIO ---
-    const userForm = document.getElementById('new-user-form');
-
-    userForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // 1. Recolectamos los datos del formulario
-        const id = document.getElementById('edit-user-id').value;
-        const fullName = document.getElementById('user-full-name').value;
-        const role = document.getElementById('user-role').value;
-        const email = document.getElementById('user-email').value;
-        
-        // 2. Si el rol es cliente, guardamos el empresa_id; si no, lo dejamos nulo
-        const companyId = (role === 'client') ? document.getElementById('user-company-id').value : null;
-
-        // Validación elegante para clientes
-        if (role === 'client' && !companyId) {
-            showToast("Por favor, selecciona una empresa para el cliente", "error");
-            return;
-        }
-
-        let result;
-
-        if (id) {
-            // --- CASO: ACTUALIZAR USUARIO EXISTENTE ---
-            const updateData = {
-                full_name: fullName,
-                role: role,
-                email: email,
-                empresa_id: companyId 
-            };
-            
-            result = await supabase
-                .from('profiles')
-                .update(updateData)
-                .eq('id', id);
-
-        } else {
-            // --- CASO: NUEVO USUARIO ---
-            showToast("La creación de nuevos correos requiere configuración de Admin Auth.", "error");
-            return;
-        }
-
-        if (result.error) {
-            console.error("Error al guardar:", result.error);
-            showToast("Error al guardar los cambios", "error");
-        } else {
-            showToast("¡Usuario actualizado correctamente!", "success");
-            
-            // Cerramos el modal y refrescamos la lista
-            const createUserModal = document.getElementById('create-user-modal');
-            if (createUserModal) createUserModal.style.display = 'none';
-            fetchAdminUsers(); 
-        }
-    });
-
     const btnDeleteUser = document.getElementById('btn-delete-user');
-    btnDeleteUser.addEventListener('click', async () => {
-        const id = document.getElementById('edit-user-id').value;
-        if (id && confirm("¿Estás seguro de eliminar este acceso? Esta acción no se puede deshacer.")) {
-            const { error } = await supabase.from('profiles').delete().eq('id', id);
-            if (!error) {
-                alert("Usuario eliminado.");
-                createUserModal.style.display = 'none';
-                fetchAdminUsers();
+    if (btnDeleteUser) {
+        btnDeleteUser.addEventListener('click', async () => {
+            const id = document.getElementById('edit-user-id').value;
+            if (id && confirm("¿Eliminar este acceso permanentemente?")) {
+                const { error } = await supabase.from('profiles').delete().eq('id', id);
+                if (!error) {
+                    showToast("Usuario eliminado", "success");
+                    createUserModal.style.display = 'none';
+                    fetchAdminUsers();
+                }
             }
-        }
-    });
+        });
+    }
 
-    // Botones de cierre
-    document.querySelectorAll('.close-user-modal, .close-register-modal').forEach(btn => {
+    document.querySelectorAll('.close-user-modal, .close-register-modal, .btn-secondary').forEach(btn => {
         btn.addEventListener('click', () => {
             userModal.style.display = 'none';
             createUserModal.style.display = 'none';
         });
     });
 }
-

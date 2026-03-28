@@ -46,11 +46,17 @@ const btnAISuggest = document.getElementById('btn-ai-suggest');
 const toastContainer = document.getElementById('toast-container');
 const btnLogout = document.getElementById('logout-btn');
 
+// --- NUEVO: REFERENCIAS GESTIÓN DE USUARIOS ---
+const userModal = document.getElementById('user-modal');
+const formUser = document.getElementById('form-create-user');
+const btnOpenUserModal = document.getElementById('btn-config'); 
+const roleSelect = document.getElementById('new-user-role');
+
 let calendar; 
 let currentEditingId = null; 
 
 // ============================================================
-// LÓGICA DE TABS
+// LÓGICA DE TABS (TICKETS)
 // ============================================================
 tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => {
@@ -77,8 +83,8 @@ tabs.forEach((tab, index) => {
 // LÓGICA DE MODALES
 // ============================================================
 const closeModalFunc = () => {
-    // Ya no incluimos userModal aquí porque se maneja en settings.js
-    const modals = [modal, viewModal, attendModal];
+    // NUEVO: Añadido userModal a la lista de cierre
+    const modals = [modal, viewModal, attendModal, userModal];
     modals.forEach(m => { if(m) m.style.display = 'none'; });
 };
 
@@ -92,12 +98,19 @@ if(btnOpenMtto) btnOpenMtto.addEventListener('click', () => {
     if(tabs.length > 1) tabs[1].click(); 
 });
 
-document.querySelectorAll('.btn-close, .btn-secondary, .close-view, .close-attend').forEach(btn => {
+// NUEVO: Abrir Modal de Usuarios (Vínculado a Configuración temporalmente)
+if(btnOpenUserModal) btnOpenUserModal.addEventListener('click', (e) => {
+    e.preventDefault();
+    userModal.style.display = 'flex';
+    cargarEmpresasParaUser();
+});
+
+document.querySelectorAll('.btn-close, .btn-secondary, .close-view, .close-attend, #cancel-user-btn, #close-user-modal').forEach(btn => {
     btn.addEventListener('click', closeModalFunc);
 });
 
 window.addEventListener('click', (e) => {
-    const modalsToClose = [modal, viewModal, attendModal];
+    const modalsToClose = [modal, viewModal, attendModal, userModal];
     if (modalsToClose.includes(e.target)) closeModalFunc();
 });
 
@@ -122,6 +135,62 @@ async function updateStats() {
         if(elCritical) elCritical.innerText = tickets.filter(t => (t.priority === 'critical' || t.priority === 'high') && t.status !== 'resolved').length;
         if(elMtto) elMtto.innerText = tickets.filter(t => t.ticket_type === 'maintenance' && t.status !== 'resolved').length;
     }
+}
+
+// ============================================================
+// NUEVO: GESTIÓN DE USUARIOS PRO (EDGE FUNCTION)
+// ============================================================
+async function registrarUsuarioPro(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-save-user');
+    const originalText = btn.innerHTML;
+    
+    btn.innerText = "Procesando...";
+    btn.disabled = true;
+
+    const userData = {
+        full_name: document.getElementById('new-user-name').value,
+        email: document.getElementById('new-user-email').value,
+        password: document.getElementById('new-user-pass').value,
+        role: document.getElementById('new-user-role').value,
+        empresa_id: document.getElementById('new-user-company').value || null
+    };
+
+    try {
+        const { data, error } = await supabase.functions.invoke('create-user', {
+            body: userData
+        });
+
+        if (error) throw error;
+
+        showToast("🚀 ¡Usuario Pro creado con éxito!");
+        closeModalFunc();
+        formUser.reset();
+        
+    } catch (err) {
+        console.error("Error:", err);
+        alert("Fallo al crear usuario: " + err.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function cargarEmpresasParaUser() {
+    const { data } = await supabase.from('companies').select('id, name').order('name');
+    const select = document.getElementById('new-user-company');
+    if(data && select) {
+        select.innerHTML = '<option value="">Seleccione Empresa...</option>' + 
+            data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    }
+}
+
+// Ocultar selector de empresa si no es cliente
+if(roleSelect) {
+    roleSelect.addEventListener('change', () => {
+        const companyGroup = document.getElementById('company-select-group');
+        companyGroup.style.display = roleSelect.value === 'client' ? 'block' : 'none';
+    });
 }
 
 // ============================================================
@@ -323,6 +392,11 @@ form.addEventListener('submit', async (e) => {
     if (!error) { showToast("✅ Creado exitosamente"); form.reset(); closeModalFunc(); fetchTickets(); }
 });
 
+// NUEVO: Listener para el formulario de Usuarios Pro
+if (formUser) {
+    formUser.addEventListener('submit', registrarUsuarioPro);
+}
+
 async function showTicketDetails(id) {
     const { data: t, error } = await supabase
         .from('tickets')
@@ -346,7 +420,7 @@ async function showTicketDetails(id) {
 }
 
 // ============================================================
-// ELIMINAR TICKET (AGREGADO)
+// ELIMINAR TICKET
 // ============================================================
 const btnDeleteTicket = document.getElementById('btn-delete-ticket');
 if (btnDeleteTicket) {
@@ -378,7 +452,7 @@ if (btnAISuggest) {
         }
         btnAISuggest.disabled = true;
         btnAISuggest.innerHTML = '<i class="fa-solid fa-wand-sparkles fa-spin"></i> Optimizando Reporte...';
-        const prompt = `Actúa como Consultor Senior de IT en SAMAND TECH. Tu misión es corregir ortografía y mejorar la redacción de un reporte técnico... (Prompt Pro ya configurado)`;
+        const prompt = `Actúa como Consultor Senior de IT en SAMAND TECH...`;
 
         try {
             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -398,7 +472,7 @@ if (btnAISuggest) {
             showToast("✨ Reporte profesionalizado con IA");
         } catch (err) {
             console.error("Error optimizando:", err);
-            alert("❌ Falló la conexión con la IA. Verifica tu internet.");
+            alert("❌ Falló la conexión con la IA.");
         } finally {
             btnAISuggest.disabled = false;
             btnAISuggest.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Sugerir con IA';
