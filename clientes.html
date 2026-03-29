@@ -11,28 +11,17 @@
 <body class="dashboard-page">
     
     <aside class="sidebar">
-        <div class="sidebar-logo">
-            <h3>SAMAND TECH</h3>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="index.html"><i class="fa-solid fa-ticket"></i> Tickets</a>
-            <a href="clientes.html" class="active"><i class="fa-solid fa-users"></i> Clientes</a>
-            <a href="reportes.html"><i class="fa-solid fa-chart-line"></i> Reportes</a>
-            <a href="#" id="btn-config"><i class="fa-solid fa-gear"></i> Configuración</a>
-        </nav>
-        <div class="sidebar-footer">
-            <button id="logout-btn">Cerrar Sesión</button>
-        </div>
     </aside>
 
     <main class="main-content">
         <header class="top-bar">
             <div class="search-bar">
-                <input type="text" id="search-company" placeholder="Buscar empresa o RIF...">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-company" class="search-input" placeholder="Buscar empresa o RIF...">
             </div>
-            <div class="user-info">
-                <span id="user-display-name">Cargando...</span>
-                <div class="avatar">SL</div>
+            <div class="user-info" style="display: flex; align-items: center; gap: 10px;">
+                <div class="avatar" id="top-bar-avatar" style="width: 35px; height: 35px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #e2e8f0;">
+                    </div>
             </div>
         </header>
 
@@ -220,6 +209,10 @@
     </script>
 
     <script type="module" src="./assets/js/clientes.js"></script>
+    <script type="module">
+        import { injectSidebar } from './assets/js/sidebar.js';
+        injectSidebar(); // <--- Esto hace la magia al cargar la página
+    </script>
     <div id="toast-container" class="toast-container"></div>
     
     </body>

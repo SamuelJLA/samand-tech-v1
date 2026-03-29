@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración | SAMANDTECH</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- ESTILOS MODERNOS PARA ESTA PÁGINA --- */
+
+        /* Inputs Modernos (.input-field) */
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #1e293b;
+            transition: all 0.3s ease;
+            box-sizing: border-box; /* Importante para padding */
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #6366f1; /* Color corporativo */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        .input-field:hover {
+            border-color: #cbd5e1;
+        }
+
+        /* Bloque de Información de Empresa (Solo Lectura, Moderno) */
+        .info-card {
+            background: white;
+            padding: 15px;
+            border: 1px solid #f1f5f9;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .info-card-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        .info-card-value {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 0.95rem;
+            text-align: right;
+        }
+        
+        /* Botones Pro (.btn-pro) */
+        .btn-pro {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        
+        /* Botón Preferencias (Primario Moderno) */
+        .btn-pro-notifications {
+            background-color: #f8fafc;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            width: 100%;
+        }
+        .btn-pro-notifications:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #1e293b;
+        }
+
+        /* Botón Guardar Cambios (Verde Moderno) */
+        .btn-pro-save {
+            background-color: #10b981;
+            color: white;
+            width: 100%;
+        }
+        .btn-pro-save:hover {
+            background-color: #059669;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Botón de Cerrar Modal (Secundario Moderno) */
+        .btn-pro-close {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        .btn-pro-close:hover {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        /* Estilo Switch Moderno */
+        .switch { position: relative; display: inline-block; width: 46px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #6366f1; }
+        input:checked:disabled + .slider { background-color: #a5b4fc; }
+        input:checked + .slider:before { transform: translateX(22px); }
+        input:disabled + .slider { cursor: not-allowed; opacity: 0.6; }
+
+        /* Estilo Avatar */
+        .avatar-edit-container:hover .avatar-overlay { opacity: 1 !important; }
+        
+        .notification-item, .notification-item-sm {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 0; border-bottom: 1px solid #f1f5f9;
+        }
+        .notification-item-sm { padding: 10px 0; border-bottom: none; }
+        .notification-info { display: flex; align-items: center; gap: 15px; }
+        .notification-title { font-weight: 600; color: #1e293b; }
+        .notification-desc { font-size: 13px; color: #64748b; margin: 2px 0 0 0; }
+        .notification-title-sm { font-size: 14px; color: #1e293b; }
+    </style>
+</head>
+<body class="dashboard-page">
+    
+    <aside class="sidebar">
+        <div class="sidebar-logo"><h3>SAMANDTECH</h3></div>
+        <nav class="sidebar-nav">
+            <a href="dashboard-cliente.html"><i class="fa-solid fa-ticket"></i> Mis Tickets</a>
+            <a href="reportes-cliente.html"><i class="fa-solid fa-chart-line"></i> Mis Reportes</a>
+            <a href="solicitud-componentes.html" class="multiline-item"><i class="fa-solid fa-cart-plus"></i> Solicitud de Componentes</a>
+            <a href="servicios-extra.html"><i class="fa-solid fa-wand-magic-sparkles"></i> Servicio Extra</a>
+            <a href="configuracion-cliente.html" class="active"><i class="fa-solid fa-gear"></i> Configuración</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logout-btn" class="btn-logout-sidebar">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="page-info"><h2>Configuración de Cuenta</h2></div>
+            <div class="user-info">
+                <span id="user-display-name">...</span> 
+                <div class="avatar" id="top-avatar">--</div> 
+            </div>
+        </header>
+
+        <section class="content-area">
+            <div class="settings-grid" style="max-width: 950px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                
+                <div class="settings-column">
+                    <div class="card shadow-sm" style="padding: 25px; background: white; border-radius: 12px; margin-bottom: 25px;">
+                        <h4 style="margin-bottom: 20px;"><i class="fa-solid fa-user-pen"></i> Datos de Contacto</h4>
+                        <form id="update-profile-form">
+                            <div class="form-group">
+                                <label>Persona de Contacto</label>
+                                <input type="text" id="contact-name" class="input-field" placeholder="Nombre completo" required>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>Teléfono de Contacto</label>
+                                <input type="tel" id="contact-phone" class="input-field" placeholder="Ej: +58 412..." required>
+                            </div>
+                            <button type="submit" class="btn-pro btn-pro-save" style="margin-top: 25px;">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card shadow-sm" style="padding: 25px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                        <h4 style="margin-bottom: 20px; color: #475569;"><i class="fa-solid fa-building-shield"></i> Información de Empresa</h4>
+                        
+                        <div class="info-card">
+                            <span class="info-card-label">Razón Social</span>
+                            <span id="company-name-view" class="info-card-value">---</span>
+                        </div>
+                        
+                        <div class="info-card">
+                            <span class="info-card-label">RIF / ID Fiscal</span>
+                            <span id="company-rif-view" class="info-card-value">---</span>
+                        </div>
+                        
+                        <div class="info-card" style="border-bottom: none; margin-bottom: 0;">
+                            <span class="info-card-label">Plan de Servicio</span>
+                            <div><span id="service-plan-badge" class="status-badge open">---</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-column">
+                    <div class="card shadow-sm" style="padding: 25px; background: white; border-radius: 12px;">
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <div class="avatar-edit-container" id="avatar-container" style="position: relative; width: 100px; height: 100px; margin: 0 auto 15px; cursor: pointer;">
+                                <img id="avatar-img" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none;">
+                                <div id="avatar-initials" style="width: 100%; height: 100%; background: #6366f1; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 600;">--</div>
+                                <div class="avatar-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: opacity 0.3s;">
+                                    <i class="fa-solid fa-camera fa-lg"></i>
+                                </div>
+                            </div>
+                            <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                            <p id="email-display" style="color: #64748b; font-weight: 500;">...</p>
+                        </div>
+
+                        <div style="margin-bottom: 25px;">
+                            <button id="open-notifications-btn" class="btn-pro btn-pro-notifications">
+                                <i class="fa-solid fa-bell-on"></i> Preferencias de Notificación
+                            </button>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+
+                        <form id="update-password-form">
+                            <h4 style="margin-bottom: 20px;"><i class="fa-solid fa-key"></i> Seguridad</h4>
+                            <div class="form-group">
+                                <label>Nueva Contraseña</label>
+                                <input type="password" id="new-password" class="input-field" placeholder="Mínimo 6 caracteres" required>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>Confirmar Contraseña</label>
+                                <input type="password" id="confirm-password" class="input-field" placeholder="Repite la contraseña" required>
+                            </div>
+                            <button type="submit" class="btn-pro btn-primary" style="width: 100%; margin-top: 25px;">
+                                <i class="fa-solid fa-shield-check"></i> Actualizar Seguridad
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="notifications-modal" class="modal-overlay">
+        <div class="modal-content modal-animated" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-bell"></i> Notificaciones</h3>
+                <button class="btn-close" id="close-notifications-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="notification-item">
+                    <div class="notification-info">
+                        <i class="fa-brands fa-whatsapp" style="color: #10b981; font-size: 1.4rem; width: 25px;"></i>
+                        <div><span class="notification-title">WhatsApp</span><p class="notification-desc">Alertas críticas al móvil.</p></div>
+                    </div>
+                    <label class="switch"><input type="checkbox" disabled><span class="slider"></span></label>
+                </div>
+                <div class="notification-item">
+                    <div class="notification-info">
+                        <i class="fa-solid fa-envelope" style="color: #475569; font-size: 1.2rem; width: 25px;"></i>
+                        <div><span class="notification-title">Correo</span><p class="notification-desc">Resúmenes y facturas.</p></div>
+                    </div>
+                    <label class="switch"><input type="checkbox" disabled><span class="slider"></span></label>
+                </div>
+                <div style="margin-top: 20px; font-size: 13px; font-weight: 600; color: #64748b;">AVISAR CUANDO UN TICKET:</div>
+                <div class="notification-item-sm"><span>Se ponga en proceso</span><label class="switch"><input type="checkbox" disabled><span class="slider"></span></label></div>
+                <div class="notification-item-sm"><span>Se actualice</span><label class="switch"><input type="checkbox" disabled><span class="slider"></span></label></div>
+                <div class="notification-item-sm"><span>Se cierre</span><label class="switch"><input type="checkbox" disabled><span class="slider"></span></label></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-pro btn-pro-close" id="cancel-notifications" style="width: 100%;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="../assets/js/client/client-settings.js"></script>
+</body>
+</html>

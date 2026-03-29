@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pedidos | SAMANDTECH</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Estilos rápidos para los Tabs de filtrado */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            background: #f1f5f9;
+            padding: 5px;
+            border-radius: 12px;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn.active {
+            background: white;
+            color: #6366f1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    
+    <aside class="sidebar">
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="page-info">
+                <h2></h2>
+            </div>
+            <div class="user-info" style="display: flex; align-items: center; gap: 10px;">
+                <div class="avatar" id="top-bar-avatar" style="width: 35px; height: 35px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #e2e8f0;">
+                    </div>
+            </div>
+        </header>
+
+        <section class="content-area">
+            <div class="header-section" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px;">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.5rem;">Listado de Solicitudes</h3>
+                    <p style="color: #64748b; margin: 5px 0 0 0;">Administra hardware y servicios especiales.</p>
+                </div>
+                
+                <div class="filter-tabs">
+                    <button class="tab-btn active" data-filter="all">Todos</button>
+                    <button class="tab-btn" data-filter="hardware"><i class="fa-solid fa-microchip"></i> Hardware</button>
+                    <button class="tab-btn" data-filter="service"><i class="fa-solid fa-wand-magic-sparkles"></i> Servicios</button>
+                </div>
+            </div>
+
+            <div class="card shadow-sm" style="background: white; border-radius: 15px; overflow: hidden;">
+                <div class="table-container">
+                    <table class="main-table">
+                        <thead>
+                            <tr>
+                                <th>Empresa</th>
+                                <th>Categoría</th>
+                                <th>Detalle / Notas</th>
+                                <th>Cantidad</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pedidos-table-body">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Cargando pedidos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="assets/js/admin-pedidos.js"></script>
+    <script type="module">
+        import { injectSidebar } from './assets/js/sidebar.js';
+        injectSidebar(); // <--- Esto hace la magia al cargar la página
+    </script>
+</body>
+</html>

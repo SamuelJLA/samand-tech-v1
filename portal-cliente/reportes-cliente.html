@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Reportes | SAMANDTECH</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dashboard-page">
+    
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h3>SAMANDTECH</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard-cliente.html"><i class="fa-solid fa-ticket"></i> Mis Tickets</a>
+            <a href="reportes-cliente.html" class="active"><i class="fa-solid fa-chart-line"></i> Mis Reportes</a>
+            <a href="solicitud-componentes.html" class="multiline-item"><i class="fa-solid fa-cart-plus"></i> Solicitud de Componentes</a>
+            <a href="servicios-extra.html"><i class="fa-solid fa-wand-magic-sparkles"></i> Servicio Extra</a>
+            <a href="configuracion-cliente.html"><i class="fa-solid fa-gear"></i> Configuración</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logout-btn" class="btn-logout-sidebar">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="page-info">
+                <h2 id="company-name">Reportes de Servicio</h2> 
+            </div>
+            <div class="user-info">
+                <span id="user-display-name">...</span> 
+                <div class="avatar" id="user-initials">--</div> 
+            </div>
+        </header>
+
+        <section class="content-area">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-title">Total Histórico</span>
+                    <span class="stat-value" id="report-total">0</span>
+                </div>
+                <div class="stat-card success">
+                    <span class="stat-title">Servicios Completados</span>
+                    <span class="stat-value" id="report-resolved">0</span>
+                </div>
+                <div class="stat-card info">
+                    <span class="stat-title">Mantenimientos</span>
+                    <span class="stat-value" id="report-mtto">0</span>
+                </div>
+            </div>
+
+            <div class="dashboard-split" style="margin-top: 25px;">
+                <div class="split-column card" style="padding: 20px;">
+                    <h3>Estado de Solicitudes</h3>
+                    <div style="max-width: 300px; margin: 0 auto;">
+                        <canvas id="chartStatus"></canvas>
+                    </div>
+                </div>
+                <div class="split-column card" style="padding: 20px;">
+                    <h3>Tipo de Servicio</h3>
+                    <div style="max-width: 300px; margin: 0 auto;">
+                        <canvas id="chartType"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-full" style="margin-top: 25px;">
+                <div class="header-section">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Historial Completo</h3>
+                    <div class="filter-box">
+                        <input type="text" id="report-search" placeholder="Buscar por asunto...">
+                    </div>
+                </div>
+                <div class="table-container card">
+                    <table class="main-table">
+                        <thead>
+                            <tr>
+                                <th>Ticket</th>
+                                <th>Fecha</th>
+                                <th>Asunto</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-history-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="view-ticket-modal" class="modal-overlay">
+        <div class="modal-content modal-detail">
+            <div class="modal-header">
+                <div class="ticket-id-badge">Ticket #<span id="detail-id">---</span></div>
+                <button class="btn-close" id="close-detail-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 id="detail-subject" style="margin:0;">Cargando...</h2>
+                    <span id="detail-status" class="status-badge">---</span>
+                </div>
+                <div class="detail-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#f8fafc; padding:15px; border-radius:10px;">
+                    <div class="detail-item"><label style="font-size:11px; color:#64748b; font-weight:600;">FECHA</label><p id="detail-date" style="margin:0; font-weight:500;">---</p></div>
+                    <div class="detail-item"><label style="font-size:11px; color:#64748b; font-weight:600;">TÉCNICO</label><p id="detail-tech" style="margin:0; font-weight:500;">---</p></div>
+                    <div class="detail-item"><label style="font-size:11px; color:#64748b; font-weight:600;">TIPO</label><p id="detail-type" style="margin:0; font-weight:500;">---</p></div>
+                </div>
+                <div class="detail-description" style="margin-top:20px;">
+                    <label style="font-size:11px; color:#64748b; font-weight:600;">DESCRIPCIÓN:</label>
+                    <p id="detail-desc" style="background:white; padding:10px; border:1px solid #eee; border-radius:5px; min-height:60px;">...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="close-detail-footer">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="../assets/js/client/client-reports.js"></script>
+</body>
+</html>

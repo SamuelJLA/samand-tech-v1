@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud de Componentes | SAMANDTECH</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dashboard-page">
+    
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h3>SAMANDTECH</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard-cliente.html"><i class="fa-solid fa-ticket"></i> Mis Tickets</a>
+            <a href="reportes-cliente.html"><i class="fa-solid fa-chart-line"></i> Mis Reportes</a>
+            <a href="solicitud-componentes.html" class="multiline-item active"><i class="fa-solid fa-cart-plus"></i> Solicitud de Componentes</a>
+            <a href="servicios-extra.html"><i class="fa-solid fa-wand-magic-sparkles"></i> Servicio Extra</a>
+            <a href="configuracion-cliente.html"><i class="fa-solid fa-gear"></i> Configuración</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logout-btn" class="btn-logout-sidebar">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="page-info">
+                <h2 id="company-name">Solicitud de Hardware</h2> 
+            </div>
+            <div class="user-info">
+                <span id="user-display-name">...</span> 
+                <div class="avatar" id="user-initials">--</div> 
+            </div>
+        </header>
+
+        <section class="content-area">
+            <div class="header-section">
+                <div>
+                    <h3 id="category-title"><i class="fa-solid fa-boxes-stacked"></i> Categorías Disponibles</h3>
+                    <p id="category-subtitle" style="color: #64748b; margin-top: 5px;">Selecciona un área para ver los componentes disponibles.</p>
+                </div>
+                <button id="btn-back-categories" class="btn-secondary-sm" style="display: none;">
+                    <i class="fa-solid fa-arrow-left"></i> Volver
+                </button>
+            </div>
+
+            <div id="components-grid" class="components-grid-container">
+                <div class="loading-spinner">Cargando catálogo...</div>
+            </div>
+        </section>
+
+        <div id="order-modal" class="modal-overlay">
+            <div class="modal-content modal-animated" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>Confirmar Solicitud</h3>
+                    <button class="btn-close" id="close-order-modal">&times;</button>
+                </div>
+                <form id="component-order-form">
+                    <p style="margin-bottom: 15px; color: #475569;">Has seleccionado: <strong id="selected-component-name">---</strong></p>
+                    
+                    <div class="form-group">
+                        <label>Cantidad requerida</label>
+                        <input type="number" id="order-qty" value="1" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Especificaciones adicionales (Marca, modelo, etc.)</label>
+                        <textarea id="order-notes" rows="3" placeholder="Ej: Memoria RAM DDR4 16GB para Laptop Dell..."></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" id="cancel-order">Cancelar</button>
+                        <button type="submit" class="btn-primary">Enviar Solicitud</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="../assets/js/client/client-components.js"></script>
+</body>
+</html>

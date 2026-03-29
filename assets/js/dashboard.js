@@ -44,7 +44,6 @@ const attendModal = document.getElementById('attend-modal');
 const btnAISuggest = document.getElementById('btn-ai-suggest');
 
 const toastContainer = document.getElementById('toast-container');
-const btnLogout = document.getElementById('logout-btn');
 
 // --- NUEVO: REFERENCIAS GESTIÓN DE USUARIOS ---
 const userModal = document.getElementById('user-modal');
