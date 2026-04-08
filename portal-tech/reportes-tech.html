@@ -3,52 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reportes | SAMAND TECH</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Mis Reportes | SAMAND TECH</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="dashboard-page"> 
     
     <aside class="sidebar">
-    </aside>
+        </aside>
 
     <main class="main-content">
         <header class="top-bar">
             <div class="search-bar">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="search-report" class="search-input" placeholder="Buscar en el historial...">
+                <input type="text" id="search-report" class="search-input" placeholder="Buscar en mis servicios finalizados...">
             </div>
-            <div class="user-info" style="display: flex; align-items: center; gap: 10px;">
-                <div class="avatar" id="top-bar-avatar" style="width: 35px; height: 35px; border-radius: 50%; overflow: hidden; cursor: pointer; border: 2px solid #e2e8f0;">
-                    </div>
+            <div class="user-info">
+                <span id="user-display-name" style="margin-right: 10px; font-weight: 500;">Cargando...</span>
+                <div class="avatar" id="top-bar-avatar">--</div> 
             </div>
         </header>
 
         <section class="content-area">
             <div class="header-section">
                 <div class="welcome-text">
-                    <h1><i class="fa-solid fa-clock-rotate-left"></i> Historial de Servicios</h1>
-                    <p>Tickets cerrados y solventados</p>
+                    <h1><i class="fa-solid fa-clock-rotate-left"></i> Mi Historial de Servicios</h1>
+                    <p>Visualiza todos los tickets que has solventado con éxito</p>
                 </div>
             </div>
 
             <div class="dashboard-split" style="margin-top: 25px; display: flex; gap: 20px;">
-                
                 <div class="split-column card shadow-sm" style="padding: 20px; flex: 1; background: white; border-radius: 12px;">
-                    <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #1e293b;">Estado de Solicitudes</h3>
-                    <div style="max-width: 250px; margin: 0 auto;">
+                    <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #1e293b;">Mis Estados</h3>
+                    <div style="max-width: 220px; margin: 0 auto;">
                         <canvas id="chartStatus"></canvas>
                     </div>
                 </div>
 
                 <div class="split-column card shadow-sm" style="padding: 20px; flex: 1; background: white; border-radius: 12px;">
-                    <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #1e293b;">Tipo de Servicio</h3>
-                    <div style="max-width: 250px; margin: 0 auto;">
+                    <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #1e293b;">Tipos de Trabajo Realizado</h3>
+                    <div style="max-width: 220px; margin: 0 auto;">
                         <canvas id="chartType"></canvas>
                     </div>
                 </div>
-
             </div>
 
             <div class="table-container shadow-lg" style="margin-top: 25px;">
@@ -58,12 +56,12 @@
                             <th>Fecha Cierre</th>
                             <th>Cliente</th>
                             <th>Tipo</th>
-                            <th>Asunto Final</th>
-                            <th>Técnico</th>
+                            <th>Asunto</th>
                             <th>Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="reports-list-body"></tbody>
+                    <tbody id="reports-list-body">
+                        </tbody>
                 </table>
             </div>
         </section>
@@ -72,29 +70,22 @@
     <div id="view-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="view-ticket-id">Detalle del Servicio</h2>
+                <h2 id="view-ticket-id">Detalle del Servicio Realizado</h2>
                 <button class="btn-close close-view">&times;</button>
             </div>
-            <div id="view-modal-body" class="modal-body-padding">
-                </div>
+            <div id="view-modal-body" class="modal-body-padding"></div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script type="module">
-        import { initUniversalSettings } from './assets/js/settings.js';
-        initUniversalSettings();
-    </script>
-
-    <script type="module">
-        import { injectSidebar } from './assets/js/sidebar.js';
+        import { injectSidebar } from '../assets/js/sidebar.js';
         injectSidebar();
     </script>
 
-    <script type="module" src="./assets/js/reportes.js"></script>
+    <script type="module" src="../assets/js/tech/reportes-tech.js"></script>
 
     <div id="toast-container" class="toast-container"></div>
 </body>

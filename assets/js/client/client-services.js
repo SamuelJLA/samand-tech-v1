@@ -31,11 +31,11 @@ async function init() {
         }
     }
 
-    // 3. Obtener el ID de la raíz "Servicios Especializados"
+    // 🚀 3. CAMBIO CLAVE: Ahora buscamos el ID de "Servicio Extra"
     const { data: rootCategory } = await supabase
         .from('components')
         .select('id')
-        .eq('name', 'Servicios Especializados')
+        .eq('name', 'Servicio Extra') // <-- Antes decía "Servicios Especializados"
         .single();
     
     if (rootCategory) {
@@ -43,7 +43,10 @@ async function init() {
         currentParentId = rootServiceId;
         await loadServices(rootServiceId);
     } else {
-        console.error("No se encontró la categoría raíz de servicios. Verifica el SQL.");
+        // Si no lo encuentra, mostramos un error claro en consola para debuguear
+        console.error("❌ No se encontró la categoría raíz 'Servicio Extra'. Verifica que exista en la tabla 'components'.");
+        const grid = document.getElementById('services-grid');
+        grid.innerHTML = '<p style="color:white; text-align:center;">Configurando servicios... Si el problema persiste, contacta a soporte.</p>';
     }
     
     setupEventListeners();
@@ -57,7 +60,6 @@ async function loadServices(parentId) {
     
     grid.innerHTML = '<div class="loading-spinner">Cargando servicios disponibles...</div>';
 
-    // Buscamos hijos del parentId actual
     const { data: items, error } = await supabase
         .from('components')
         .select('*')
@@ -69,19 +71,18 @@ async function loadServices(parentId) {
         return;
     }
 
-    // SI NO HAY HIJOS: Es un servicio final, abrimos el modal
+    // SI NO HAY HIJOS: Es un servicio final (ej. "Instalación de Cámaras"), abrimos el modal
     if ((!items || items.length === 0) && parentId !== rootServiceId) {
         openServiceModal(parentId);
-        // Retrocedemos en la lógica para no dejar la pantalla vacía
         currentParentId = serviceHistory.pop();
         await loadServices(currentParentId);
         return;
     }
 
-    // Actualizar Títulos de la UI
+    // 🚀 Actualizar Títulos según el nivel donde estemos
     if (parentId === rootServiceId) {
-        titleEl.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> ¿En qué podemos ayudarte?';
-        subtitleEl.innerText = 'Selecciona una línea de servicio especializado.';
+        titleEl.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Servicio Extra';
+        subtitleEl.innerText = 'Selecciona una de nuestras soluciones especializadas.';
         document.getElementById('btn-back-services').style.display = 'none';
     } else {
         const { data: parentInfo } = await supabase.from('components').select('name').eq('id', parentId).single();
@@ -96,6 +97,12 @@ async function loadServices(parentId) {
 // --- RENDERIZAR CUADRÍCULA ---
 function renderGrid(items) {
     const grid = document.getElementById('services-grid');
+    
+    if (!items || items.length === 0) {
+        grid.innerHTML = '<p style="color: #94a3b8; text-align: center; width: 100%;">Próximamente más servicios en esta categoría.</p>';
+        return;
+    }
+
     grid.innerHTML = items.map(item => `
         <div class="grid-item" data-id="${item.id}" data-name="${item.name}">
             <i class="${item.icon_class || 'fa-solid fa-screwdriver-wrench'}"></i>
@@ -103,11 +110,10 @@ function renderGrid(items) {
         </div>
     `).join('');
 
-    // Eventos de clic en cada recuadro
     document.querySelectorAll('.grid-item').forEach(el => {
         el.onclick = () => {
             const id = el.dataset.id;
-            serviceHistory.push(currentParentId); // Guardamos historial para "Volver"
+            serviceHistory.push(currentParentId); 
             currentParentId = id;
             loadServices(id);
         };
@@ -129,7 +135,6 @@ function setupEventListeners() {
     const backBtn = document.getElementById('btn-back-services');
     const serviceForm = document.getElementById('service-request-form');
 
-    // Botón Volver
     backBtn.onclick = () => {
         if (serviceHistory.length > 0) {
             currentParentId = serviceHistory.pop();
@@ -137,11 +142,9 @@ function setupEventListeners() {
         }
     };
 
-    // Cerrar Modal
     document.getElementById('close-service-modal').onclick = () => modal.classList.remove('active');
     document.getElementById('cancel-service').onclick = () => modal.classList.remove('active');
 
-    // Enviar Formulario (Crea un Ticket)
     if (serviceForm) {
         serviceForm.onsubmit = async (e) => {
             e.preventDefault();
@@ -150,9 +153,9 @@ function setupEventListeners() {
 
             const { error } = await supabase.from('tickets').insert([{
                 client_id: userCompanyId,
-                subject: `SOLICITUD DE SERVICIO: ${serviceName}`,
+                subject: `SOLICITUD DE SERVICIO EXTRA: ${serviceName}`,
                 description: `Detalles del requerimiento:\n${notes}`,
-                ticket_type: 'incidence', // Puedes cambiarlo a 'service' si añades ese tipo en SQL
+                ticket_type: 'incidence', 
                 status: 'open',
                 priority: 'medium'
             }]);
@@ -162,13 +165,12 @@ function setupEventListeners() {
                 serviceForm.reset();
                 modal.classList.remove('active');
             } else {
-                alert("Hubo un error al procesar la solicitud. Intenta de nuevo.");
+                alert("Hubo un error al procesar la solicitud.");
                 console.error(error);
             }
         };
     }
 
-    // Logout
     document.getElementById('logout-btn')?.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = '../login.html';

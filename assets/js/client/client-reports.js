@@ -22,7 +22,6 @@ async function initReports() {
 }
 
 async function loadFullHistory() {
-    // Aquí traemos TODOS los tickets sin filtros de estado
     const { data: tickets, error } = await supabase
         .from('tickets')
         .select('*')
@@ -32,7 +31,7 @@ async function loadFullHistory() {
     if (error) return;
 
     renderStats(tickets);
-    renderCharts(tickets);
+    // 🚀 Quitamos la llamada a renderCharts porque ya no existen en el HTML
     renderTable(tickets);
 
     // Buscador en tiempo real
@@ -52,48 +51,8 @@ function renderStats(tickets) {
     document.getElementById('report-mtto').innerText = tickets.filter(t => t.ticket_type === 'maintenance').length;
 }
 
-function renderCharts(tickets) {
-    // 1. Gráfica de Estados
-    const statusData = {
-        Abiertos: tickets.filter(t => t.status === 'open').length,
-        Proceso: tickets.filter(t => t.status === 'in_progress').length,
-        Resueltos: tickets.filter(t => t.status === 'resolved').length
-    };
+// ❌ LA FUNCIÓN RENDERCHARTS FUE ELIMINADA DE AQUÍ PARA EVITAR EL SYNTAX ERROR
 
-    new Chart(document.getElementById('chartStatus'), {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(statusData),
-            datasets: [{
-                data: Object.values(statusData),
-                backgroundColor: ['#e11d48', '#f59e0b', '#10b981'],
-                borderWidth: 0
-            }]
-        },
-        options: { plugins: { legend: { position: 'bottom' } } }
-    });
-
-    // 2. Gráfica de Tipos
-    const typeData = {
-        Fallas: tickets.filter(t => t.ticket_type === 'incidence').length,
-        Mantenimiento: tickets.filter(t => t.ticket_type === 'maintenance').length
-    };
-
-    new Chart(document.getElementById('chartType'), {
-        type: 'pie',
-        data: {
-            labels: Object.keys(typeData),
-            datasets: [{
-                data: Object.values(typeData),
-                backgroundColor: ['#6366f1', '#0ea5e9'],
-                borderWidth: 0
-            }]
-        },
-        options: { plugins: { legend: { position: 'bottom' } } }
-    });
-}
-
-// --- 1. Modificamos el render de la tabla ---
 function renderTable(tickets) {
     const tbody = document.getElementById('report-history-body');
     tbody.innerHTML = tickets.map(t => {
@@ -115,13 +74,11 @@ function renderTable(tickets) {
         `;
     }).join('');
 
-    // Agregamos los eventos a los nuevos botones
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.onclick = () => viewTicketDetails(btn.dataset.id);
     });
 }
 
-// --- 2. Añadimos la función que abre el Modal (Copia fiel del Dashboard) ---
 async function viewTicketDetails(ticketId) {
     const modal = document.getElementById('view-ticket-modal');
     
@@ -133,7 +90,6 @@ async function viewTicketDetails(ticketId) {
 
     if (error || !ticket) return;
 
-    // Llenar Modal
     document.getElementById('detail-id').innerText = ticket.id.slice(0, 8).toUpperCase();
     document.getElementById('detail-subject').innerText = ticket.subject || 'Mantenimiento Preventivo';
     document.getElementById('detail-desc').innerText = ticket.description;
@@ -147,7 +103,6 @@ async function viewTicketDetails(ticketId) {
 
     modal.classList.add('active');
 
-    // Cerrar Modal
     const close = () => modal.classList.remove('active');
     document.getElementById('close-detail-btn').onclick = close;
     document.getElementById('close-detail-footer').onclick = close;

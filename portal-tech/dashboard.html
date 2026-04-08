@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Técnico | SAMANDTECH</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+</head>
+<body class="dashboard-page">
+    
+    <aside class="sidebar">
+        </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="page-info">
+                <h2 id="company-name">Panel de Operaciones</h2> 
+            </div>
+            <div class="user-info">
+                <span id="user-display-name">Cargando...</span> 
+                <div class="avatar" id="top-bar-avatar">--</div> 
+            </div>
+        </header>
+
+        <section class="content-area">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-title">Mis Tickets Abiertos</span>
+                    <span class="stat-value" id="count-open">0</span>
+                </div>
+                <div class="stat-card danger">
+                    <span class="stat-title">Incidencias Críticas</span>
+                    <span class="stat-value" id="count-critical">0</span>
+                </div>
+                <div class="stat-card info">
+                    <span class="stat-title">Mantenimientos Mes</span>
+                    <span class="stat-value" id="count-maintenance">0</span>
+                </div>
+                </div>
+
+            <div class="dashboard-split">
+                <div class="split-column">
+                    <div class="header-section">
+                        <h3><i class="fa-solid fa-triangle-exclamation"></i> Mis Asignaciones</h3>
+                        <button class="btn-primary-sm" id="btn-open-modal">+ Nueva Falla</button>
+                    </div>
+                    <div class="table-container mini-table">
+                        <table class="main-table">
+                            <thead>
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Empresa</th>
+                                    <th>Asunto</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th> 
+                                </tr>
+                            </thead>
+                            <tbody id="incidence-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="split-column">
+                    <div class="header-section">
+                        <h3><i class="fa-solid fa-tools"></i> Mis Mantenimientos</h3>
+                        </div>
+                    <div class="table-container mini-table">
+                        <table class="main-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Empresa</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th> 
+                                </tr>
+                            </thead>
+                            <tbody id="maintenance-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calendar-section">
+                <div class="header-section">
+                    <h3><i class="fa-solid fa-calendar-days"></i> Mi Cronograma de Trabajo</h3>
+                </div>
+                <div id="calendar-container">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </section>
+
+        <div id="attend-modal" class="modal-overlay">
+            </div>
+
+        <div id="toast-container" class="toast-container"></div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="../assets/js/tech/dashboard-tech.js"></script>
+    <script type="module">
+        import { injectSidebar } from '../assets/js/sidebar.js';
+        injectSidebar(); 
+    </script>
+</body>
+</html>

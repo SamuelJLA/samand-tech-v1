@@ -53,10 +53,6 @@
                     <span class="stat-title">Resueltos</span>
                     <span class="stat-value" id="count-done">0</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-title">SLA de Respuesta</span>
-                    <span class="stat-value">99.2%</span>
-                </div>
             </div>
 
             <div class="dashboard-full">
@@ -92,33 +88,35 @@
 
         <div id="ticket-modal" class="modal-overlay">
             <div class="modal-content modal-animated">
-                <div class="modal-tabs">
-                    <div class="tab-item active" data-tab="incidence">Falla Técnica</div>
-                    <div class="tab-item" data-tab="maintenance">Solicitar Mantenimiento</div>
-                    <div class="tab-indicator"></div>
+                
+                <div class="modal-header-simple" style="margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
+                    <h2 style="font-size: 1.25rem; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-triangle-exclamation" style="color: #e11d48;"></i> 
+                        Reportar Falla Técnica
+                    </h2>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-top: 5px;">Describa el inconveniente para asignarle un técnico de inmediato.</p>
                 </div>
                 
                 <form id="client-new-ticket-form">
                     <input type="hidden" id="ticket-type-input" value="incidence">
 
                     <div class="form-group" id="subject-group">
-                        <label>¿Cuál es el problema?</label>
-                        <input type="text" id="subject-input" placeholder="Ej: No tengo conexión a internet">
+                        <label style="font-weight: 500; color: #334155;">¿Cuál es el problema?</label>
+                        <input type="text" id="subject-input" placeholder="Ej: El servidor no enciende / Sin internet" required 
+                            style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 5px;">
                     </div>
 
-                    <div class="form-group" id="date-group" style="display: none;">
-                        <label>Fecha sugerida para visita</label>
-                        <input type="date" id="scheduled-date">
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label style="font-weight: 500; color: #334155;">Descripción / Observaciones</label>
+                        <textarea id="description-input" rows="4" placeholder="Brinde detalles adicionales (Nro de equipo, ubicación, etc.)" required
+                                style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 5px; resize: none;"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label>Descripción / Observaciones</label>
-                        <textarea id="description-input" rows="4" placeholder="Danos más detalles para ayudarte mejor..." required></textarea>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn-secondary" id="cancel-btn">Cerrar</button>
-                        <button type="submit" class="btn-primary">Enviar</button>
+                    <div class="modal-footer" style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="btn-secondary" id="cancel-btn">Cancelar</button>
+                        <button type="submit" class="btn-primary" style="background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                            Enviar Reporte
+                        </button>
                     </div>
                 </form>
             </div>

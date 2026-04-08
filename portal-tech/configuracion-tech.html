@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil | SAMANDTECH</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .tech-config-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .avatar-edit-container:hover .avatar-overlay { opacity: 1 !important; }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #1e293b;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            background: white;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #10b981; /* Color verde para el técnico */
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+        /* Bloqueamos el correo para que solo el admin lo cambie si es necesario */
+        .input-readonly {
+            background: #f8fafc;
+            cursor: not-allowed;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body class="dashboard-page">
+    
+    <aside class="sidebar">
+        </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="page-info"><h2>Mi Perfil Técnico</h2></div>
+            <div class="user-info">
+                <div class="avatar" id="top-bar-avatar">--</div>
+            </div>
+        </header>
+
+        <section class="content-area">
+            <div class="tech-config-container">
+                
+                <div id="tab-profile" class="tab-content active">
+                    <div class="grid-2" style="display: grid; grid-template-columns: 1fr 320px; gap: 25px;">
+                        
+                        <div class="card shadow-sm" style="padding: 30px; background: white; border-radius: 15px;">
+                            <form id="tech-profile-form">
+                                <h4 style="margin-bottom: 20px; color: #1e293b;"><i class="fa-solid fa-user-gear"></i> Datos de la Cuenta</h4>
+                                
+                                <div class="form-group">
+                                    <label>Nombre Completo</label>
+                                    <input type="text" id="tech-name" class="input-field" required>
+                                </div>
+
+                                <div class="form-group" style="margin-top: 15px;">
+                                    <label>Correo Electrónico</label>
+                                    <input type="email" id="tech-email" class="input-field input-readonly" readonly>
+                                    <small style="color: #94a3b8;">El correo solo puede ser modificado por un administrador.</small>
+                                </div>
+
+                                <hr style="margin: 25px 0; border: 0; border-top: 1px solid #f1f5f9;">
+
+                                <h4 style="margin-bottom: 20px; color: #1e293b;"><i class="fa-solid fa-shield-halved"></i> Seguridad</h4>
+                                <div class="form-group">
+                                    <label>Nueva Contraseña</label>
+                                    <input type="password" id="tech-password" class="input-field" placeholder="Escribe para cambiar tu acceso">
+                                </div>
+
+                                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 25px; background: #10b981; border: none;">
+                                    Actualizar mi Perfil
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="card shadow-sm" style="padding: 30px; background: white; border-radius: 15px; text-align: center;">
+                            <div class="avatar-edit-container" id="tech-avatar-trigger" style="position: relative; width: 140px; height: 140px; margin: 0 auto 20px; cursor: pointer;">
+                                <img id="tech-img" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: none; border: 3px solid #10b981;">
+                                <div id="tech-init" style="width: 100%; height: 100%; border-radius: 50%; background: #10b981; color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: bold;">
+                                    --
+                                </div>
+                                <div class="avatar-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: 0.3s;">
+                                    <i class="fa-solid fa-camera fa-2xl"></i>
+                                </div>
+                            </div>
+
+                            <input type="file" id="tech-file-input" accept="image/*" style="display: none;">
+                            
+                            <h3 id="display-name-card" style="margin-bottom: 5px; color: #1e293b;">...</h3>
+                            <span class="status-badge tech" style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                                Técnico de Soporte
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script type="module" src="../assets/js/tech/settings-tech.js"></script>
+    
+    <script type="module">
+        import { injectSidebar } from '../assets/js/sidebar.js';
+        injectSidebar(); 
+    </script>
+</body>
+</html>

@@ -18,7 +18,6 @@ async function initPortal() {
         return; 
     }
 
-    // Actualizamos UI de Usuario
     const companyEl = document.getElementById('company-name');
     const userEl = document.getElementById('user-display-name');
     const initialsEl = document.getElementById('user-initials');
@@ -36,14 +35,13 @@ async function initPortal() {
 
     userCompanyId = profile.empresa_id;
 
-    // Cargamos todo en orden
     await loadTickets();
     await updateStats();
     await initCalendar();
     setupEventListeners();
 }
 
-// 2. Cargar Tickets en la Tabla
+// 2. Cargar Tickets (Mantenemos la visualización de MTTO aunque ellos no los creen)
 async function loadTickets() {
     if (!userCompanyId) return;
 
@@ -51,32 +49,22 @@ async function loadTickets() {
         .from('tickets')
         .select('*, profiles!assigned_to(full_name)') 
         .eq('client_id', userCompanyId)
-        .neq('status', 'resolved') // <--- ESTA ES LA CLAVE: Filtra los ya terminados
+        .neq('status', 'resolved')
         .order('created_at', { ascending: false });
 
-    if (error) {
-        console.error("Error en loadTickets:", error);
-        return;
-    }
+    if (error) return;
 
     const tbody = document.getElementById('client-tickets-body');
     if (tbody) {
-        // Si no hay nada pendiente, le avisamos al cliente con un mensaje limpio
         if (tickets.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 30px; color: #64748b;">
-                        <i class="fa-solid fa-check-double" style="display:block; font-size: 2rem; margin-bottom: 10px; color: #10b981;"></i>
-                        No tienes requerimientos activos. ¡Todo al día!
-                    </td>
-                </tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 30px; color: #64748b;">No tienes requerimientos activos.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = tickets.map(t => {
             const date = new Date(t.created_at).toLocaleDateString();
             const statusLabel = t.status === 'open' ? 'Abierto' : 'En Proceso';
-            const techName = t.profiles?.full_name || '<span style="color: #94a3b8; font-style: italic;">Por asignar</span>';
+            const techName = t.profiles?.full_name || '<span style="color: #94a3b8;">Por asignar</span>';
 
             return `
                 <tr>
@@ -84,79 +72,48 @@ async function loadTickets() {
                     <td>${date}</td>
                     <td>
                         <strong>${t.ticket_type === 'maintenance' ? '🛠️ Mantenimiento' : t.subject}</strong><br>
-                        <small style="color: #64748b;">${t.ticket_type === 'maintenance' ? 'Preventivo' : 'Falla Técnica'}</small>
+                        <small style="color: #64748b;">${t.ticket_type === 'maintenance' ? 'Programado por SAMANDTECH' : 'Falla Técnica'}</small>
                     </td>
-                    <td><i class="fa-solid fa-user-gear" style="font-size: 0.8rem; color: #94a3b8;"></i> ${techName}</td>
+                    <td><i class="fa-solid fa-user-gear"></i> ${techName}</td>
                     <td><span class="status-badge ${t.status}">${statusLabel}</span></td>
                     <td>
-                        <button class="btn-action view-btn" data-id="${t.id}" title="Ver Detalles">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
+                        <button class="btn-action view-btn" data-id="${t.id}"><i class="fa-solid fa-eye"></i></button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         }).join('');
 
-        // Re-vinculamos los eventos del ojo para que funcionen tras la carga
         document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.onclick = (e) => {
-                e.preventDefault();
-                viewTicketDetails(btn.dataset.id);
-            };
+            btn.onclick = () => viewTicketDetails(btn.dataset.id);
         });
     }
 }
 
-// 3. Ver Detalles del Ticket (El Modal del Ojo)
+// 3. Ver Detalles (Sin cambios)
 async function viewTicketDetails(ticketId) {
     const modal = document.getElementById('view-ticket-modal');
-    if (!modal) {
-        console.error("Error: No se encontró el modal 'view-ticket-modal' en el HTML.");
-        return;
-    }
+    const { data: ticket } = await supabase.from('tickets').select('*, profiles!assigned_to(full_name)').eq('id', ticketId).single();
+    if (!ticket) return;
 
-    const { data: ticket, error } = await supabase
-        .from('tickets')
-        .select('*, profiles!assigned_to(full_name)')
-        .eq('id', ticketId)
-        .single();
-
-    if (error || !ticket) {
-        console.error("Error al obtener detalles:", error);
-        return;
-    }
-
-    // Rellenar datos en el modal
     document.getElementById('detail-id').innerText = ticket.id.slice(0, 8).toUpperCase();
-    document.getElementById('detail-subject').innerText = ticket.subject || 'Mantenimiento Preventivo';
+    document.getElementById('detail-subject').innerText = ticket.subject || 'Mantenimiento';
     document.getElementById('detail-desc').innerText = ticket.description || 'Sin descripción';
     document.getElementById('detail-date').innerText = new Date(ticket.created_at).toLocaleDateString();
-    document.getElementById('detail-tech').innerText = ticket.profiles?.full_name || 'Pendiente de asignar';
+    document.getElementById('detail-tech').innerText = ticket.profiles?.full_name || 'Pendiente';
     document.getElementById('detail-type').innerText = ticket.ticket_type === 'maintenance' ? 'Mantenimiento' : 'Falla Técnica';
 
-    // Badge de estado
     const statusEl = document.getElementById('detail-status');
-    if (statusEl) {
-        statusEl.innerText = ticket.status === 'open' ? 'Abierto' : ticket.status === 'in_progress' ? 'En Proceso' : 'Resuelto';
-        statusEl.className = `status-badge ${ticket.status}`;
-    }
+    statusEl.innerText = ticket.status === 'open' ? 'Abierto' : ticket.status === 'in_progress' ? 'En Proceso' : 'Resuelto';
+    statusEl.className = `status-badge ${ticket.status}`;
 
-    // MOSTRAR MODAL
     modal.classList.add('active');
-
-    // Listener para cerrar
     const closeDetail = () => modal.classList.remove('active');
     document.getElementById('close-detail-btn').onclick = closeDetail;
     document.getElementById('close-detail-footer').onclick = closeDetail;
 }
 
-// 4. Estadísticas
+// 4. Estadísticas (Sin cambios)
 async function updateStats() {
-    const { data: tickets } = await supabase
-        .from('tickets')
-        .select('status')
-        .eq('client_id', userCompanyId);
-
+    const { data: tickets } = await supabase.from('tickets').select('status').eq('client_id', userCompanyId);
     if (tickets) {
         document.getElementById('count-pending').innerText = tickets.filter(t => t.status === 'open').length;
         document.getElementById('count-process').innerText = tickets.filter(t => t.status === 'in_progress').length;
@@ -164,23 +121,15 @@ async function updateStats() {
     }
 }
 
-// 5. Calendario
+// 5. Calendario (Sin cambios, el cliente debe ver cuándo vas tú)
 async function initCalendar() {
     const calendarEl = document.getElementById('calendar');
     if (!calendarEl || !userCompanyId) return;
-
-    const { data: tickets } = await supabase
-        .from('tickets')
-        .select('*')
-        .eq('client_id', userCompanyId);
-
+    const { data: tickets } = await supabase.from('tickets').select('*').eq('client_id', userCompanyId);
     const events = (tickets || []).map(t => {
         const isMtto = t.ticket_type === 'maintenance';
-        let color = '#e11d48'; // Open
-        if (t.status === 'resolved') color = '#10b981';
-        if (t.status === 'in_progress') color = '#f59e0b';
+        let color = t.status === 'resolved' ? '#10b981' : (t.status === 'in_progress' ? '#f59e0b' : '#e11d48');
         if (isMtto && t.status === 'open') color = '#0ea5e9';
-
         return {
             id: t.id,
             title: `${isMtto ? '🛠️' : '⚠️'} ${t.subject || 'MTTO'}`,
@@ -189,9 +138,7 @@ async function initCalendar() {
             borderColor: color
         };
     });
-
     if (calendar) calendar.destroy();
-    
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'es',
@@ -202,51 +149,34 @@ async function initCalendar() {
     calendar.render();
 }
 
-// 6. Configuración de Eventos de Botones
+// 🚀 6. CONFIGURACIÓN DE EVENTOS (Simplificada)
 function setupEventListeners() {
     const modalCreate = document.getElementById('ticket-modal'); 
     const btnOpenCreate = document.getElementById('btn-open-ticket-client');
     const btnCancelCreate = document.getElementById('cancel-btn');
     const ticketForm = document.getElementById('client-new-ticket-form');
-    const tabs = document.querySelectorAll('.tab-item');
-    const typeInput = document.getElementById('ticket-type-input');
 
-    // Botón abrir creación
-    if (btnOpenCreate) {
-        btnOpenCreate.onclick = () => modalCreate.classList.add('active');
-    }
+    if (btnOpenCreate) btnOpenCreate.onclick = () => modalCreate.classList.add('active');
+    if (btnCancelCreate) btnCancelCreate.onclick = () => modalCreate.classList.remove('active');
 
-    // Botón cerrar creación
-    if (btnCancelCreate) {
-        btnCancelCreate.onclick = () => modalCreate.classList.remove('active');
-    }
+    // --- LÓGICA DE TABS ELIMINADA ---
 
-    // Tabs del modal
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            const type = tab.dataset.tab;
-            if (typeInput) typeInput.value = type;
-            document.getElementById('subject-group').style.display = type === 'maintenance' ? 'none' : 'block';
-            document.getElementById('date-group').style.display = type === 'maintenance' ? 'block' : 'none';
-        });
-    });
-
-    // Enviar Ticket
     if (ticketForm) {
         ticketForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const type = typeInput?.value || 'incidence';
+            
+            // Ya no hay selección, siempre es incidencia
+            const subject = document.getElementById('subject-input').value;
+            const description = document.getElementById('description-input').value;
 
             const { error } = await supabase.from('tickets').insert([{
                 client_id: userCompanyId,
-                ticket_type: type,
-                subject: type === 'maintenance' ? 'Mantenimiento Preventivo' : document.getElementById('subject-input').value,
-                description: document.getElementById('description-input').value,
-                scheduled_date: type === 'maintenance' ? document.getElementById('scheduled-date').value : null,
+                ticket_type: 'incidence', // Fijo
+                subject: subject,
+                description: description,
+                scheduled_date: null, // No aplica para fallas
                 status: 'open',
-                priority: 'low'
+                priority: 'medium'
             }]);
 
             if (!error) {
@@ -255,17 +185,17 @@ function setupEventListeners() {
                 await loadTickets();
                 await updateStats();
                 await initCalendar();
-                alert("🚀 ¡Solicitud enviada con éxito!");
+                alert("🚀 ¡Falla reportada! Un técnico revisará su caso pronto.");
+            } else {
+                alert("Error al enviar la solicitud.");
             }
         });
     }
 
-    // Logout
     document.getElementById('logout-btn')?.addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = '../login.html';
     });
 }
 
-// Arrancamos
 initPortal();

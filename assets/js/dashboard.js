@@ -3,20 +3,41 @@ import supabase from './supabase.js';
 import { labels } from './utils.js';
 
 // ============================================================
-// SEGURIDAD Y SESIÓN
+// SEGURIDAD, SESIÓN Y ROLES
 // ============================================================
 async function checkUser() {
     const { data: { user } } = await supabase.auth.getUser();
+    
     if (!user) {
         window.location.href = 'login.html';
+        return;
+    }
+
+    // 1. Mostrar nombre (lo que ya tenías)
+    const userDisplay = document.getElementById('user-display-name');
+    if (userDisplay && user.user_metadata.full_name) {
+        userDisplay.innerText = user.user_metadata.full_name;
+    }
+
+    // 2. NUEVO: Lógica de visibilidad por Rol
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    const statsContainer = document.getElementById('stats-charts-container'); // El ID que le pongas en el HTML
+
+    if (profile?.role === 'client') {
+        // Si es cliente, borramos las gráficas para que ni siquiera ocupen espacio
+        if (statsContainer) statsContainer.remove();
     } else {
-        const userDisplay = document.getElementById('user-display-name');
-        if (userDisplay && user.user_metadata.full_name) {
-            userDisplay.innerText = user.user_metadata.full_name;
-        }
+        // Si es Admin o Técnico, las mostramos
+        if (statsContainer) statsContainer.style.display = 'grid'; // O 'flex'
+        // Aquí es donde llamarías a la función que dibuja las gráficas (si usas Chart.js)
+        // initCharts(); 
     }
 }
-checkUser();
 
 // ============================================================
 // 2. REFERENCIAS DEL DOM
@@ -438,40 +459,42 @@ if (btnDeleteTicket) {
 }
 
 // ============================================================
-// LOGICA DE INTELIGENCIA ARTIFICIAL (GROQ)
+// LOGICA DE INTELIGENCIA ARTIFICIAL (VÍA SUPABASE EDGE FUNCTION)
 // ============================================================
-const GROQ_API_KEY = "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";
-
 if (btnAISuggest) {
     btnAISuggest.addEventListener('click', async () => {
         const descField = document.getElementById('attend-notes');
         const recomField = document.getElementById('attend-recommendations');
+        
         if (!descField.value || descField.value.length < 5) {
             return alert("⚠️ Samuel, escribe algo en la descripción técnica para que la IA pueda trabajar.");
         }
+        
         btnAISuggest.disabled = true;
-        btnAISuggest.innerHTML = '<i class="fa-solid fa-wand-sparkles fa-spin"></i> Optimizando Reporte...';
-        const prompt = `Actúa como Consultor Senior de IT en SAMAND TECH...`;
+        btnAISuggest.innerHTML = '<i class="fa-solid fa-wand-sparkles fa-spin"></i> Consultando a la IA...';
 
         try {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [{ role: "user", content: prompt }],
-                    temperature: 0.5,
-                    response_format: { "type": "json_object" } 
-                })
+            // 🚀 LLAMADA SEGURA: Invocamos tu función 'ai-recommendations'
+            const { data, error } = await supabase.functions.invoke('ai-recommendations', {
+                body: { 
+                    prompt: descField.value 
+                }
             });
-            const data = await response.json();
-            const result = JSON.parse(data.choices[0].message.content);
-            descField.value = result.desc_mejorada;
-            recomField.value = result.recom_mejorada;
-            showToast("✨ Reporte profesionalizado con IA");
+
+            if (error) throw error;
+
+            // Verificamos que la IA nos haya devuelto los campos esperados
+            if (data && data.desc_mejorada && data.recom_mejorada) {
+                descField.value = data.desc_mejorada;
+                recomField.value = data.recom_mejorada;
+                showToast("✨ Reporte profesionalizado con éxito");
+            } else {
+                throw new Error("La respuesta de la IA no tiene el formato correcto.");
+            }
+
         } catch (err) {
-            console.error("Error optimizando:", err);
-            alert("❌ Falló la conexión con la IA.");
+            console.error("Error con la Edge Function:", err);
+            alert("❌ Falló la IA. Asegúrate de haber puesto la nueva API KEY en los 'Secrets' de Supabase.");
         } finally {
             btnAISuggest.disabled = false;
             btnAISuggest.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Sugerir con IA';

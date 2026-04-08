@@ -41,17 +41,17 @@ async function loadCategories(parentId) {
     let query = supabase.from('components').select('*');
     
     if (!parentId) {
-        // Estamos en la raíz
-        query = query.is('parent_id', null);
+        // 🚀 CAMBIO AQUÍ: Estamos en la raíz, traemos todo EXCEPTO "Servicio Extra"
+        query = query.is('parent_id', null).neq('name', 'Servicio Extra'); 
+        
         document.getElementById('btn-back-categories').style.display = 'none';
         titleEl.innerHTML = '<i class="fa-solid fa-boxes-stacked"></i> Seleccione su producto';
         subtitleEl.innerText = 'Explora nuestras categorías principales de hardware.';
     } else {
-        // Estamos dentro de una categoría
+        // Estamos dentro de una categoría (Aquí no filtramos nada)
         query = query.eq('parent_id', parentId);
         document.getElementById('btn-back-categories').style.display = 'block';
         
-        // Opcional: Obtener el nombre del padre para el título
         const { data: parentData } = await supabase.from('components').select('name').eq('id', parentId).single();
         titleEl.innerHTML = `<i class="fa-solid fa-search"></i> Explorar ${parentData.name}`;
         subtitleEl.innerText = 'Selecciona el tipo específico de equipo que requieres.';

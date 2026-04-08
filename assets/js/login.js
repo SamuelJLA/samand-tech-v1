@@ -50,8 +50,10 @@ if (loginForm) {
             // 4. Redirección inteligente
             if (profile.role === 'client') {
                 window.location.href = 'portal-cliente/dashboard-cliente.html';
-            } else if (profile.role === 'admin' || profile.role === 'tech') {
-                window.location.href = 'index.html';
+            } else if (profile.role === 'admin') {
+                window.location.href = 'index.html'; // El Admin se queda en la raíz
+            } else if (profile.role === 'tech') {
+                window.location.href = 'portal-tech/dashboard.html'; // 🚀 El técnico a su nuevo portal
             }
 
         } catch (err) {

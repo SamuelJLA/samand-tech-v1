@@ -18,7 +18,7 @@ async function checkUser() {
     }
 }
 
-// 2. CARGAR TICKETS CERRADOS EN LA TABLA
+// 2. CARGAR TICKETS Y GENERAR ESTADÍSTICAS
 async function fetchResolvedTickets() {
     console.log("Conectando con Supabase...");
     
@@ -29,7 +29,8 @@ async function fetchResolvedTickets() {
             companies!fk_tickets_client ( name ),
             profiles!tickets_assigned_to_fkey ( full_name )
         `)
-        .eq('status', 'resolved') 
+        // Quitamos el filtro de 'resolved' para que las gráficas muestren la realidad
+        // Si quieres que la TABLA solo muestre cerrados, lo filtramos en el .map abajo
         .order('updated_at', { ascending: false });
 
     if (error) {
@@ -39,12 +40,14 @@ async function fetchResolvedTickets() {
     }
 
     if (!tickets || tickets.length === 0) {
-        reportsListBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No hay tickets cerrados todavía.</td></tr>';
+        reportsListBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No hay tickets registrados todavía.</td></tr>';
         return;
     }
 
-    reportsListBody.innerHTML = tickets.map(t => {
-        // TRADUCCIONES PARA LA TABLA
+    // 1. FILTRAMOS PARA LA TABLA (Solo mostrar los resueltos en el historial)
+    const resolvedTickets = tickets.filter(t => t.status === 'resolved');
+
+    reportsListBody.innerHTML = resolvedTickets.map(t => {
         const tipoTraducido = labels.type[t.ticket_type] || 'Falla';
         const tecnicoNombre = t.profiles?.full_name || 'Sin técnico';
 
@@ -61,6 +64,9 @@ async function fetchResolvedTickets() {
             </tr>
         `;
     }).join('');
+
+    // 🚀 2. ACTIVAMOS LAS GRÁFICAS (Usamos 'tickets' para que la torta vea todos los estados)
+    renderCharts(tickets); 
 }
 
 // 3. EVENTO PARA VISUALIZAR DETALLES (EL OJO)
@@ -113,3 +119,54 @@ document.querySelector('.close-view')?.addEventListener('click', () => {
 
 // Iniciar proceso
 checkUser();
+
+// --- DENTRO DE reportes.js (Admin) ---
+
+function renderCharts(tickets) {
+    const ctxStatus = document.getElementById('chartStatus');
+    const ctxType = document.getElementById('chartType');
+
+    // 🛡️ Siempre verifica que existan antes de pintar
+    if (!ctxStatus || !ctxType) return;
+
+    // Destruir gráficas previas si existen (para evitar errores al recargar)
+    if (window.myChartStatus) window.myChartStatus.destroy();
+    if (window.myChartType) window.myChartType.destroy();
+
+    // 1. Gráfica de Estados
+    window.myChartStatus = new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+            labels: ['Abiertos', 'En Proceso', 'Resueltos'], // Ajusta según tus labels
+            datasets: [{
+                data: [
+                    tickets.filter(t => t.status === 'open').length,
+                    tickets.filter(t => t.status === 'in_progress').length,
+                    tickets.filter(t => t.status === 'resolved').length
+                ],
+                backgroundColor: ['#e11d48', '#f59e0b', '#10b981'],
+                borderWidth: 0
+            }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // 2. Gráfica de Tipos (MANTENIMIENTO VS FALLAS)
+    const typeData = {
+        Fallas: tickets.filter(t => t.ticket_type === 'incidence' || !t.ticket_type).length,
+        Mantenimiento: tickets.filter(t => t.ticket_type === 'maintenance').length
+    };
+
+    window.myChartType = new Chart(ctxType, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(typeData),
+            datasets: [{
+                data: Object.values(typeData),
+                backgroundColor: ['#6366f1', '#0ea5e9'],
+                borderWidth: 0
+            }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } } }
+    });
+}
