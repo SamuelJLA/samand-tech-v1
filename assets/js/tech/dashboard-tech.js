@@ -2,15 +2,15 @@ import supabase from '../supabase.js';
 
 let currentUserId = null;
 let calendar = null;
+let lastTechValue = ""; 
+let lastRecValue = "";
 
 async function initTechDashboard() {
-    // 1. Verificar sesión y obtener ID
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { window.location.href = '../login.html'; return; }
     
     currentUserId = user.id;
 
-    // 2. Cargar nombre en la interfaz
     const { data: profile } = await supabase
         .from('profiles')
         .select('full_name')
@@ -25,22 +25,21 @@ async function initTechDashboard() {
         initialsEl.innerText = parts.length > 1 ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase() : parts[0][0].toUpperCase();
     }
 
-    // 3. Cargar la data operativa
     await loadTechStats();
     await loadTechTickets();
     await initTechCalendar();
-    setupTechEventListeners();
+    setupTechEventListeners(); // 🚀 Activamos todos los clics de una vez
 }
 
-// --- 📊 ESTADÍSTICAS FILTRADAS POR TÉCNICO ---
+// --- 📊 ESTADÍSTICAS ---
 async function loadTechStats() {
     const { data: tickets } = await supabase
         .from('tickets')
         .select('status, priority, ticket_type')
-        .eq('assigned_to', currentUserId); // 🛡️ Solo lo suyo
+        .eq('assigned_to', currentUserId);
 
     if (tickets) {
-        document.getElementById('count-open').innerText = tickets.filter(t => t.status === 'open').length;
+        document.getElementById('count-open').innerText = tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length;
         document.getElementById('count-critical').innerText = tickets.filter(t => (t.priority === 'critical' || t.priority === 'high') && t.status !== 'resolved').length;
         document.getElementById('count-maintenance').innerText = tickets.filter(t => t.ticket_type === 'maintenance' && t.status !== 'resolved').length;
     }
@@ -60,39 +59,55 @@ async function loadTechTickets() {
     const incidenceBody = document.getElementById('incidence-list-body');
     const maintenanceBody = document.getElementById('maintenance-list-body');
 
-    // Limpiar tablas
-    incidenceBody.innerHTML = '';
-    maintenanceBody.innerHTML = '';
+    if (incidenceBody) incidenceBody.innerHTML = '';
+    if (maintenanceBody) maintenanceBody.innerHTML = '';
 
     tickets.forEach(t => {
+        let statusLabel = t.status === 'open' ? 'Pendiente' : 'En Proceso';
+        
+        // 🚀 Generamos la fila estilo PREMIUM (Igual que Admin)
         const row = `
             <tr>
-                <td>#${t.id.slice(0, 5).toUpperCase()}</td>
-                <td>${t.companies?.name || 'N/A'}</td>
-                <td>${t.ticket_type === 'maintenance' ? '🛠️ Mantenimiento' : t.subject}</td>
-                <td><span class="status-badge ${t.status}">${t.status}</span></td>
+                <td style="color: #6366f1; font-weight: 600; font-size: 0.85rem;">#${t.id.slice(0, 5).toUpperCase()}</td>
+                <td><strong style="color: #1e293b;">${t.companies?.name || 'N/A'}</strong></td>
+                <td style="color: #475569;">${t.subject}</td>
                 <td>
-                    <button class="btn-action attend-btn" data-id="${t.id}" title="Gestionar">
-                        <i class="fa-solid fa-briefcase"></i>
-                    </button>
+                    <span class="status-pill ${t.status}">${statusLabel}</span>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="btn-action view-btn" data-id="${t.id}" title="Ver Detalles">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        
+                        <button class="btn-action ${t.status === 'open' ? 'attend-btn' : 'manage-btn'}" 
+                                data-id="${t.id}" 
+                                title="${t.status === 'open' ? 'Atender' : 'Gestionar'}">
+                            <i class="fa-solid ${t.status === 'open' ? 'fa-screwdriver-wrench' : 'fa-circle-check'}"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `;
 
         if (t.ticket_type === 'maintenance') {
-            maintenanceBody.innerHTML += row;
+            if (maintenanceBody) maintenanceBody.innerHTML += row;
         } else {
-            incidenceBody.innerHTML += row;
+            if (incidenceBody) incidenceBody.innerHTML += row;
         }
     });
 
-    // Evento para abrir el modal de gestión
-    document.querySelectorAll('.attend-btn').forEach(btn => {
+    // 🔗 IMPORTANTE: Re-vincular los clics para que los botones funcionen
+    document.querySelectorAll('.attend-btn, .manage-btn').forEach(btn => {
         btn.onclick = () => openAttendModal(btn.dataset.id);
+    });
+
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.onclick = () => openViewModal(btn.dataset.id);
     });
 }
 
-// --- 📅 CALENDARIO PERSONAL ---
+// --- 📅 CALENDARIO ---
 async function initTechCalendar() {
     const calendarEl = document.getElementById('calendar');
     if (!calendarEl) return;
@@ -119,31 +134,165 @@ async function initTechCalendar() {
         locale: 'es',
         headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' },
         events: events,
-        eventClick: (info) => openAttendModal(info.event.id)
+        eventClick: (info) => openViewModal(info.event.id)
     });
     calendar.render();
 }
 
-// --- 🛠️ GESTIÓN DE TICKETS (MODAL) ---
-async function openAttendModal(ticketId) {
+// --- 🛠️ MODAL DE ATENCIÓN (LLAVE/GESTIÓN) ---
+async function openAttendModal(id) {
     const modal = document.getElementById('attend-modal');
-    // Aquí cargarías la info del ticket en los inputs del modal de gestión
-    // (Similar a como lo haces en el admin para cerrar tickets)
-    modal.classList.add('active');
-    modal.dataset.currentTicketId = ticketId;
+    const { data: t } = await supabase.from('tickets').select('*, companies(name)').eq('id', id).single();
+    if (!t) return;
+
+    document.getElementById('modal-ticket-id').innerText = `Atendiendo Ticket #${t.id.slice(0, 5).toUpperCase()}`;
+    document.getElementById('attend-ticket-id').value = t.id;
+    document.getElementById('attend-client').innerText = t.companies?.name || 'N/A';
+    document.getElementById('attend-subject').innerText = t.subject;
+
+    // Pasar a "En Proceso" automáticamente al abrir
+    if (t.status === 'open') {
+        await supabase.from('tickets').update({ status: 'in_progress' }).eq('id', id);
+        loadTechTickets();
+    }
+    modal.style.display = 'flex';
+}
+
+// --- 👁️ MODAL DE VISTA (OJO) ---
+async function openViewModal(id) {
+    const modal = document.getElementById('view-ticket-modal');
+    const { data: t } = await supabase.from('tickets').select('*, companies(name)').eq('id', id).single();
+    if (!t) return;
+
+    document.getElementById('v-id').innerText = `#${t.id.slice(0, 5).toUpperCase()}`;
+    document.getElementById('v-client').innerText = t.companies?.name || 'N/A';
+    document.getElementById('v-subject').innerText = t.subject;
+    document.getElementById('v-description').innerText = t.description || 'Sin descripción detallada.';
+    const statusText = t.status === 'open' ? 'Pendiente' : (t.status === 'resolved' ? 'Resuelto' : 'En Proceso');
+    document.getElementById('v-status').innerHTML = `<span class="status-badge ${t.status}">${statusText}</span>`;
+    document.getElementById('v-priority').innerText = t.priority.toUpperCase();
+
+    modal.style.display = 'flex';
 }
 
 function setupTechEventListeners() {
-    // Cerrar modales
-    document.querySelectorAll('.close-attend, .btn-secondary').forEach(btn => {
-        btn.onclick = () => document.getElementById('attend-modal').classList.remove('active');
+    const attendModal = document.getElementById('attend-modal');
+    const viewModal = document.getElementById('view-ticket-modal');
+
+    // --- 🚪 GESTIÓN DE MODALES ---
+    document.getElementById('close-attend-modal').onclick = () => attendModal.style.display = 'none';
+    document.getElementById('btn-cancel-attend').onclick = () => attendModal.style.display = 'none';
+    document.getElementById('close-view-modal').onclick = () => viewModal.style.display = 'none';
+    document.getElementById('btn-close-view').onclick = () => viewModal.style.display = 'none';
+
+    window.onclick = (event) => {
+        if (event.target == attendModal) attendModal.style.display = 'none';
+        if (event.target == viewModal) viewModal.style.display = 'none';
+    };
+
+    // --- 🪄 LÓGICA DE IA INTELIGENTE ---
+    
+    // Referencias a elementos
+    const techNotes = document.getElementById('tech-notes');
+    const btnIATech = document.getElementById('btn-ia-tech');
+    const recNotes = document.getElementById('recommendations');
+    const btnIARec = document.getElementById('btn-ia-rec');
+
+    // 🕵️ Escuchar cambios en Descripción Técnica
+    techNotes.addEventListener('input', () => {
+        // Solo aparece si el texto cambió respecto al último pulido y tiene contenido
+        if (techNotes.value.trim() !== lastTechValue && techNotes.value.length > 10) {
+            btnIATech.style.display = 'inline-flex';
+        } else {
+            btnIATech.style.display = 'none';
+        }
     });
 
-    // Logout
-    document.getElementById('logout-btn')?.addEventListener('click', async () => {
-        await supabase.auth.signOut();
-        window.location.href = '../login.html';
+    // 🕵️ Escuchar cambios en Recomendaciones
+    recNotes.addEventListener('input', () => {
+        if (recNotes.value.trim() !== lastRecValue && recNotes.value.length > 10) {
+            btnIARec.style.display = 'inline-flex';
+        } else {
+            btnIARec.style.display = 'none';
+        }
     });
+
+    // Asignar clics a los botones
+    if (btnIATech) btnIATech.onclick = () => handleIAMagic('tech-notes', 'tech', btnIATech);
+    if (btnIARec) btnIARec.onclick = () => handleIAMagic('recommendations', 'rec', btnIARec);
+
+    // --- 📨 ENVÍO DE FORMULARIO ---
+    const attendForm = document.getElementById('attend-form');
+    if (attendForm) {
+        attendForm.onsubmit = handleFinalizeTicket;
+    }
 }
 
+async function handleIAMagic(fieldId, type, btn) {
+    const textarea = document.getElementById(fieldId);
+    const originalText = textarea.value;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-sparkles fa-spin"></i>';
+
+    try {
+        const { data, error } = await supabase.functions.invoke('polish-report', {
+            body: { text: originalText, type: type }
+        });
+
+        if (error) throw error;
+
+        // Actualizamos el textarea con la magia
+        textarea.value = data.polishedText;
+
+        // 🛡️ Actualizamos la memoria para que el botón desaparezca
+        if (type === 'tech') lastTechValue = data.polishedText;
+        else lastRecValue = data.polishedText;
+
+        btn.style.display = 'none'; // Escondemos el botón
+        alert("✨ ¡Texto optimizado por la IA!");
+
+    } catch (err) {
+        console.error("Error IA:", err);
+        alert("Hubo un detalle con la IA, intenta de nuevo.");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>';
+    }
+}
+
+async function handleFinalizeTicket(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const ticketId = document.getElementById('attend-ticket-id').value;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+    try {
+        const { error } = await supabase.from('tickets').update({
+            status: 'resolved',
+            received_by: document.getElementById('received-by').value,
+            tech_notes: document.getElementById('tech-notes').value, // Verifica que el nombre de columna coincida en tu BD
+            recommendations: document.getElementById('recommendations').value,
+            updated_at: new Date()
+        }).eq('id', ticketId);
+
+        if (error) throw error;
+
+        alert("¡Servicio finalizado con éxito!");
+        document.getElementById('attend-modal').style.display = 'none';
+        e.target.reset();
+        loadTechStats();
+        loadTechTickets();
+        initTechCalendar();
+    } catch (err) {
+        alert("Error: " + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Finalizar y Cerrar Ticket';
+    }
+}
+
+// Arrancamos
 initTechDashboard();

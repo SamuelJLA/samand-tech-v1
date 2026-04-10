@@ -6,14 +6,13 @@
     <title>Panel Técnico | SAMANDTECH</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 </head>
 <body class="dashboard-page">
     
-    <aside class="sidebar">
-        </aside>
+    <aside class="sidebar"></aside>
 
     <main class="main-content">
         <header class="top-bar">
@@ -40,7 +39,7 @@
                     <span class="stat-title">Mantenimientos Mes</span>
                     <span class="stat-value" id="count-maintenance">0</span>
                 </div>
-                </div>
+            </div>
 
             <div class="dashboard-split">
                 <div class="split-column">
@@ -67,14 +66,15 @@
                 <div class="split-column">
                     <div class="header-section">
                         <h3><i class="fa-solid fa-tools"></i> Mis Mantenimientos</h3>
-                        </div>
+                    </div>
                     <div class="table-container mini-table">
                         <table class="main-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Ticket</th>
                                     <th>Empresa</th>
-                                    <th>Fecha</th>
+                                    <th>Asunto</th>
+                                    <th>Estado</th>
                                     <th>Acciones</th> 
                                 </tr>
                             </thead>
@@ -82,9 +82,9 @@
                         </table>
                     </div>
                 </div>
-            </div>
+            </div> 
 
-            <div class="calendar-section">
+            <div class="calendar-section" style="margin-top: 30px;">
                 <div class="header-section">
                     <h3><i class="fa-solid fa-calendar-days"></i> Mi Cronograma de Trabajo</h3>
                 </div>
@@ -95,7 +95,81 @@
         </section>
 
         <div id="attend-modal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 id="modal-ticket-id">Atendiendo Ticket #----</h2>
+                    <button class="btn-close" id="close-attend-modal">&times;</button>
+                </div>
+                <form id="attend-form">
+                    <input type="hidden" id="attend-ticket-id">
+                    <div class="modal-body">
+                        <div class="view-grid" style="display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 20px; background: #f1f5f9; padding: 10px; border-radius: 8px;">
+                            <div class="view-item"><strong>Cliente:</strong> <br> <span id="attend-client">...</span></div>
+                            <div class="view-item"><strong>Asunto:</strong> <br> <span id="attend-subject">...</span></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label><strong>Persona que Recibe:</strong></label>
+                            <input type="text" id="received-by" class="input-field" placeholder="Nombre de quien firma" required>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label><strong>Descripción Técnica:</strong></label>
+                                <button type="button" class="btn-ai-magic" id="btn-ia-tech" style="display: none; font-size: 0.7rem; padding: 2px 8px;">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Pulir Descripción
+                                </button>
+                            </div>
+                            <textarea id="tech-notes" class="input-field" rows="4" placeholder="¿Qué reparaciones realizaste?" required></textarea>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label><strong>Recomendaciones:</strong></label>
+                                <button type="button" class="btn-ai-magic" id="btn-ia-rec" style="display: none; font-size: 0.7rem; padding: 2px 8px;">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Pulir Sugerencias
+                                </button>
+                            </div>
+                            <textarea id="recommendations" class="input-field" rows="2" placeholder="Sugerencias para el cliente..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button type="button" class="btn-secondary" id="btn-cancel-attend" style="flex: 1;">Cancelar</button>
+                        <button type="submit" class="btn-primary" style="flex: 2; background: #10b981;">Finalizar Ticket</button>
+                    </div>
+                </form>
             </div>
+        </div>
+
+        <div id="view-ticket-modal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 550px;">
+                <div class="modal-header">
+                    <h2 id="view-modal-title">Detalles del Ticket</h2>
+                    <button class="btn-close" id="close-view-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="view-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px;">
+                        <div class="view-item"><strong>Ticket:</strong> <br> <span id="v-id">--</span></div>
+                        <div class="view-item"><strong>Estado:</strong> <br> <span id="v-status">--</span></div>
+                        <div class="view-item"><strong>Cliente:</strong> <br> <span id="v-client">--</span></div>
+                        <div class="view-item"><strong>Prioridad:</strong> <br> <span id="v-priority">--</span></div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <label style="font-weight: 600;">Asunto:</label>
+                        <p id="v-subject" style="font-size: 1.1rem; font-weight: 500;"></p>
+                    </div>
+
+                    <div style="margin-top: 15px;">
+                        <label style="font-weight: 600;">Descripción del reporte:</label>
+                        <p id="v-description" style="background: white; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; font-size: 0.9rem; color: #334155;"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btn-close-view" style="width: 100%;">Cerrar Vista</button>
+                </div>
+            </div>
+        </div>
 
         <div id="toast-container" class="toast-container"></div>
     </main>

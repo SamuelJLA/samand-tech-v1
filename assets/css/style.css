@@ -1629,3 +1629,104 @@ input:focus {
     font-style: italic;
     font-size: 0.85rem;
 }
+
+/* --- ESTADOS MODERNOS (PILLS) --- */
+.status-pill {
+    padding: 5px 14px;
+    border-radius: 50px; /* Esto da el efecto cápsula */
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+}
+
+/* Colores para Pendiente (Open) */
+.status-pill.open, .status-pill.pending {
+    background: #fff1f2;
+    color: #e11d48;
+    border-color: #fecdd3;
+}
+
+/* Colores para En Proceso */
+.status-pill.in_progress {
+    background: #f0f9ff;
+    color: #0369a1;
+    border-color: #bae6fd;
+}
+
+/* Colores para Resuelto */
+.status-pill.resolved {
+    background: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+/* --- EFECTO DE LÍNEA AZUL EN LAS FILAS --- */
+.main-table tbody tr {
+    border-left: 4px solid transparent; /* Línea invisible por defecto */
+    transition: 0.2s;
+}
+
+.main-table tbody tr:hover {
+    border-left: 4px solid #6366f1; /* Se pone azul al pasar el mouse */
+    background-color: #f8fafc;
+}
+
+/* --- BOTONES DE ACCIÓN ESTILO ADMIN (SIN CUADROS) --- */
+.btn-action {
+    background: none !important; /* Quitamos el fondo gris */
+    border: none !important;     /* Quitamos el borde/cuadro */
+    padding: 8px !important;
+    cursor: pointer;
+    font-size: 1.2rem;           /* Iconos más grandes como en Admin */
+    color: #94a3b8;              /* Color base gris suave */
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+}
+
+/* Efecto Hover: se agranda un poco y cambia de color */
+.btn-action:hover {
+    transform: scale(1.2);
+}
+
+/* Color específico para el Ojo (Visualizar) */
+.view-btn {
+    color: #64748b; 
+}
+.view-btn:hover {
+    color: #6366f1 !important; /* Azul Samand al pasar el mouse */
+}
+
+/* Color específico para el Atender (Llave) */
+.attend-btn {
+    color: #6366f1; 
+}
+.attend-btn:hover {
+    color: #4f46e5 !important;
+}
+
+/* Color específico para el Gestionar (Check) */
+.manage-btn {
+    color: #10b981 !important; /* Verde esmeralda */
+}
+.manage-btn:hover {
+    color: #059669 !important;
+}
+
+.btn-action {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important; /* Esto quita cualquier sombreado de Windows */
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-action:hover {
+    transform: scale(1.1);
+}
