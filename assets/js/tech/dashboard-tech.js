@@ -242,19 +242,25 @@ async function handleIAMagic(fieldId, type, btn) {
 
         if (error) throw error;
 
-        // Actualizamos el textarea con la magia
+        // 1. Reemplazamos el texto
         textarea.value = data.polishedText;
 
-        // 🛡️ Actualizamos la memoria para que el botón desaparezca
-        if (type === 'tech') lastTechValue = data.polishedText;
-        else lastRecValue = data.polishedText;
+        // 2. 🛡️ Sincronizamos la memoria para que el botón desaparezca
+        if (type === 'tech') {
+            lastTechValue = data.polishedText;
+        } else {
+            lastRecValue = data.polishedText;
+        }
 
-        btn.style.display = 'none'; // Escondemos el botón
-        alert("✨ ¡Texto optimizado por la IA!");
+        // 3. Escondemos el botón inmediatamente
+        btn.style.display = 'none';
+
+        // 4. ✅ NOTIFICACIÓN ELEGANTE (Toast)
+        showToast("✨ Texto optimizado por la IA", "success");
 
     } catch (err) {
         console.error("Error IA:", err);
-        alert("Hubo un detalle con la IA, intenta de nuevo.");
+        showToast("La IA no pudo procesar el texto", "error");
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>';
@@ -270,24 +276,35 @@ async function handleFinalizeTicket(e) {
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
 
     try {
+        // 🚨 IMPORTANTE: Verifica los nombres de tus columnas en Supabase
         const { error } = await supabase.from('tickets').update({
             status: 'resolved',
             received_by: document.getElementById('received-by').value,
-            tech_notes: document.getElementById('tech-notes').value, // Verifica que el nombre de columna coincida en tu BD
+            // Si el error 400 persiste, cambia 'description' por el nombre real en tu BD
+            description: document.getElementById('tech-notes').value, 
             recommendations: document.getElementById('recommendations').value,
             updated_at: new Date()
         }).eq('id', ticketId);
 
         if (error) throw error;
 
-        alert("¡Servicio finalizado con éxito!");
+        // ✅ USAMOS EL TOAST EN VEZ DEL ALERT
+        showToast("¡Servicio finalizado con éxito!", "success");
+
         document.getElementById('attend-modal').style.display = 'none';
         e.target.reset();
+        
+        // Limpiamos memorias de IA
+        lastTechValue = "";
+        lastRecValue = "";
+
         loadTechStats();
         loadTechTickets();
         initTechCalendar();
+
     } catch (err) {
-        alert("Error: " + err.message);
+        console.error("Error al cerrar ticket:", err);
+        showToast("Error al guardar: " + err.message, "error");
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Finalizar y Cerrar Ticket';
@@ -296,3 +313,27 @@ async function handleFinalizeTicket(e) {
 
 // Arrancamos
 initTechDashboard();
+
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation';
+    
+    toast.innerHTML = `
+        <i class="fa-solid ${icon}"></i>
+        <span>${message}</span>
+    `;
+    
+    container.appendChild(toast);
+
+    // Animación de entrada
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Auto-eliminar después de 3 segundos
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}

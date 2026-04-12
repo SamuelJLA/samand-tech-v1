@@ -10,27 +10,28 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    // 1. Recibimos el texto y el TIPO (tech o rec)
     const { text, type } = await req.json()
     const apiKey = Deno.env.get('GROQ_API_KEY')
 
-    // 2. Definimos el Prompt según el botón que presionó Alan
-    let systemRole = "Eres un experto senior en infraestructura tecnológica de SAMANDTECH.";
-    let taskInstructions = "";
+    // 🎯 NUEVAS INSTRUCCIONES ESTILO SAMANDTECH
+    const systemInstructions = `
+      Eres un editor técnico senior de SAMANDTECH. Tu misión es profesionalizar reportes de IT.
+      
+      REGLAS CRÍTICAS:
+      1. PRESERVAR DETALLES: No elimines nombres de hardware (impresora, PC, router), software ni causas técnicas (picos de voltaje, saturación).
+      2. TONO: Profesional, técnico y en tercera persona.
+      3. NO ALUCINAR: No inventes acciones que el usuario no mencionó (como actualizaciones o tests).
+      4. CONCISIÓN: Elimina palabras innecesarias pero MANTÉN la información técnica completa.
+      
+      EJEMPLO TÉCNICO:
+      - Entrada: "Reinicie la impresora porque se pego por la luz"
+      - Salida: "Se realizó el reinicio de la impresora debido a un bloqueo por fluctuación eléctrica."
+      
+      EJEMPLO RECOMENDACIÓN:
+      - Entrada: "Comprar UPS para que la impresora no se pegue por los picos"
+      - Salida: "Se recomienda instalar una UPS para proteger la impresora contra picos de voltaje y evitar bloqueos del sistema."
+    `;
 
-    if (type === 'tech') {
-      taskInstructions = `Optimiza esta DESCRIPCIÓN TÉCNICA. 
-      Usa un tono profesional, técnico y conciso. 
-      Habla de acciones realizadas (ej: "Se ejecutó", "Se verificó"). 
-      Elimina muletillas y errores ortográficos.`;
-    } else {
-      taskInstructions = `Optimiza estas RECOMENDACIONES para el cliente. 
-      Usa un tono consultivo, preventivo y persuasivo. 
-      Explica el beneficio de seguir la sugerencia. 
-      Usa un lenguaje que el cliente entienda pero que suene profesional.`;
-    }
-
-    // 3. Llamada a Groq
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -40,18 +41,17 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [
-          { role: 'system', content: `${systemRole} ${taskInstructions} Responde ÚNICAMENTE con el texto optimizado, sin introducciones ni comentarios adicionales.` },
-          { role: 'user', content: `Texto original: ${text}` }
+          { role: 'system', content: systemInstructions },
+          { role: 'user', content: `Profesionaliza este texto para el campo de ${type === 'tech' ? 'Descripción Técnica' : 'Recomendaciones'}: ${text}` }
         ],
-        temperature: 0.3, // Mantenerlo serio y no tan creativo
-        max_tokens: 200
+        temperature: 0.1, // Un poquito más de margen para que no sea tan robótica
+        max_tokens: 150
       }),
     })
 
     const groqData = await response.json()
-    const polishedText = groqData.choices[0].message.content.trim()
+    const polishedText = groqData.choices[0].message.content.trim();
 
-    // 4. Devolvemos el resultado limpio
     return new Response(JSON.stringify({ polishedText }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
