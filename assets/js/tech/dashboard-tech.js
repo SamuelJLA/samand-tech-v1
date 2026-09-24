@@ -6,8 +6,15 @@ let lastTechValue = "";
 let lastRecValue = "";
 
 async function initTechDashboard() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { window.location.href = '../login.html'; return; }
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error || !user) { 
+        localStorage.clear();
+        // Usa la ruta relativa adecuada según dónde esté el archivo
+        const isSubFolder = window.location.pathname.includes('/portal-tech/');
+        window.location.href = isSubFolder ? '../login.html' : './login.html'; 
+        return; 
+    }
     
     currentUserId = user.id;
 
@@ -28,7 +35,7 @@ async function initTechDashboard() {
     await loadTechStats();
     await loadTechTickets();
     await initTechCalendar();
-    setupTechEventListeners(); // 🚀 Activamos todos los clics de una vez
+    setupTechEventListeners();
 }
 
 // --- 📊 ESTADÍSTICAS ---
