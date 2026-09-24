@@ -2,11 +2,19 @@
 import supabase from './supabase.js';
 
 export async function protectRoute(requiredRole) {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error } = await supabase.auth.getUser();
     
-    if (!user) {
-        window.location.href = '/login.html';
-        return;
+    // Detectamos si la página actual está en una subcarpeta (ej: /portal-tech/)
+    const isSubFolder = window.location.pathname.includes('/portal-tech/') || 
+                        window.location.pathname.includes('/portal-cliente/');
+    
+    const loginPath = isSubFolder ? '../login.html' : './login.html';
+    const unauthorizedPath = isSubFolder ? '../unauthorized.html' : './unauthorized.html';
+
+    if (error || !user) {
+        localStorage.clear();
+        window.location.href = loginPath;
+        return null;
     }
 
     const { data: profile } = await supabase
@@ -15,9 +23,10 @@ export async function protectRoute(requiredRole) {
         .eq('id', user.id)
         .single();
 
-    if (profile.role !== requiredRole && profile.role !== 'admin') {
-        // Si no es el rol requerido ni es admin, ¡pa' fuera!
-        window.location.href = '/unauthorized.html'; 
+    if (!profile || (profile.role !== requiredRole && profile.role !== 'admin')) {
+        // Si no tiene el rol ni es admin
+        window.location.href = unauthorizedPath; 
+        return null;
     }
     
     return user;
