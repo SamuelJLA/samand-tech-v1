@@ -5,37 +5,43 @@ import { labels } from './utils.js';
 // ============================================================
 // SEGURIDAD, SESIÓN Y ROLES
 // ============================================================
+// ============================================================
+// SEGURIDAD, SESIÓN Y ROLES (CORREGIDO)
+// ============================================================
 async function checkUser() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error } = await supabase.auth.getUser();
     
-    if (!user) {
-        window.location.href = 'login.html';
+    // Detectamos si la página actual está en una subcarpeta
+    const isSubFolder = window.location.pathname.includes('/portal-tech/') || 
+                        window.location.pathname.includes('/portal-cliente/');
+    
+    const loginPath = isSubFolder ? '../login.html' : './login.html';
+
+    if (error || !user) {
+        localStorage.clear();
+        window.location.href = loginPath; // 👈 RUTA RELATIVA DINÁMICA
         return;
     }
 
-    // 1. Mostrar nombre (lo que ya tenías)
+    // 1. Mostrar nombre
     const userDisplay = document.getElementById('user-display-name');
-    if (userDisplay && user.user_metadata.full_name) {
+    if (userDisplay && user.user_metadata?.full_name) {
         userDisplay.innerText = user.user_metadata.full_name;
     }
 
-    // 2. NUEVO: Lógica de visibilidad por Rol
+    // 2. Lógica de visibilidad por Rol
     const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single();
 
-    const statsContainer = document.getElementById('stats-charts-container'); // El ID que le pongas en el HTML
+    const statsContainer = document.getElementById('stats-charts-container');
 
     if (profile?.role === 'client') {
-        // Si es cliente, borramos las gráficas para que ni siquiera ocupen espacio
         if (statsContainer) statsContainer.remove();
     } else {
-        // Si es Admin o Técnico, las mostramos
-        if (statsContainer) statsContainer.style.display = 'grid'; // O 'flex'
-        // Aquí es donde llamarías a la función que dibuja las gráficas (si usas Chart.js)
-        // initCharts(); 
+        if (statsContainer) statsContainer.style.display = 'grid';
     }
 }
 
