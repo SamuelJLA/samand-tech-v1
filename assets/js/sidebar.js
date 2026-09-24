@@ -4,7 +4,7 @@ export async function injectSidebar() {
     const sidebar = document.querySelector('.sidebar');
     if (!sidebar) return;
 
-    // 1. Obtener Usuario y Rol (La clave del filtro)
+    // 1. Obtener Usuario y Rol
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -14,39 +14,47 @@ export async function injectSidebar() {
         .eq('id', user.id)
         .single();
 
-    const role = profile?.role || 'tech'; // Por defecto tech si algo falla
+    const role = profile?.role || 'tech'; // Por defecto tech
 
-    // 2. Detectar página actual
+    // 2. Detectar si estamos en una subcarpeta (/portal-tech/ o /portal-cliente/)
+    const isSubFolder = window.location.pathname.includes('/portal-tech/') || 
+                        window.location.pathname.includes('/portal-cliente/');
+    
+    // Si estamos en subcarpeta, para ir a la raíz usamos '../', si estamos en raíz usamos './'
+    const rootPath = isSubFolder ? '../' : './';
+    const techPath = isSubFolder ? './' : './portal-tech/';
+
     const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
-    // 3. Definir links Dinámicos según el Rol
+    // 3. Definir links Dinámicos con prefijos de ruta correctos
     let menuItems = [];
 
     if (role === 'admin') {
         menuItems = [
-            { name: 'Tickets', icon: 'fa-ticket', url: 'index.html' },
-            { name: 'Clientes', icon: 'fa-users', url: 'clientes.html' },
-            { name: 'Pedidos', icon: 'fa-cart-shopping', url: 'pedidos.html' },
-            { name: 'Reportes', icon: 'fa-chart-line', url: 'reportes.html' },
-            { name: 'Configuración', icon: 'fa-gear', url: 'configuracion-admin.html' }
+            { name: 'Tickets', icon: 'fa-ticket', url: `${rootPath}index.html` },
+            { name: 'Clientes', icon: 'fa-users', url: `${rootPath}clientes.html` },
+            { name: 'Pedidos', icon: 'fa-cart-shopping', url: `${rootPath}pedidos.html` },
+            { name: 'Reportes', icon: 'fa-chart-line', url: `${rootPath}reportes.html` },
+            { name: 'Configuración', icon: 'fa-gear', url: `${rootPath}configuracion-admin.html` }
         ];
     } else if (role === 'tech') {
-        // 🚀 VISTA MINIMESA PARA EL TÉCNICO
+        // 🚀 VISTA PARA EL TÉCNICO
         menuItems = [
-            { name: 'Mis Tickets', icon: 'fa-ticket', url: 'dashboard.html' },
-            { name: 'Mis Reportes', icon: 'fa-chart-line', url: 'reportes-tech.html' },
-            { name: 'Configuración', icon: 'fa-gear', url: 'configuracion-tech.html' }
+            { name: 'Mis Tickets', icon: 'fa-ticket', url: `${techPath}dashboard.html` },
+            { name: 'Mis Reportes', icon: 'fa-chart-line', url: `${techPath}reportes-tech.html` },
+            { name: 'Configuración', icon: 'fa-gear', url: `${techPath}configuracion-tech.html` }
         ];
     }
 
     const navHTML = menuItems.map(item => {
-        const isActive = currentPage === item.url ? 'active' : '';
+        const itemFileName = item.url.split("/").pop();
+        const isActive = currentPage === itemFileName ? 'active' : '';
         return `<a href="${item.url}" class="${isActive}"><i class="fa-solid ${item.icon}"></i> ${item.name}</a>`;
     }).join('');
 
-    // 4. Inyectar HTML con Etiqueta Dinámica (ADMIN vs TECH)
+    // 4. Inyectar HTML
     const roleBadge = role === 'admin' ? 'ADMIN' : 'TECH';
-    const badgeColor = role === 'admin' ? '#fbbf24' : '#10b981'; // Dorado para admin, Verde para tech
+    const badgeColor = role === 'admin' ? '#fbbf24' : '#10b981';
 
     sidebar.innerHTML = `
         <div class="sidebar-logo">
@@ -72,13 +80,18 @@ export async function injectSidebar() {
         </div>
     `;
 
-    // 5. Lógica de Eventos
+    // 5. Lógica de Eventos y Cierre de Sesión Seguro
     const logoutModal = document.getElementById('logout-modal');
     document.getElementById('logout-btn').onclick = () => logoutModal.style.display = 'flex';
     document.getElementById('btn-cancel-logout').onclick = () => logoutModal.style.display = 'none';
+    
     document.getElementById('btn-confirm-logout').onclick = async () => {
         await supabase.auth.signOut();
-        window.location.href = '../login.html'; // Ajustado para salir de carpetas
+        localStorage.clear();
+        
+        // 🚨 REDIRECCIÓN DINÁMICA: Si estamos en subcarpeta sube con ../, si no va a ./login.html
+        const targetLogin = isSubFolder ? '../login.html' : './login.html';
+        window.location.href = targetLogin;
     };
 
     updateTopBar();
@@ -102,18 +115,17 @@ async function updateTopBar() {
             avatarDiv.innerHTML = `<img src="${profile.avatar_url}" style="width:100%; height:100%; object-fit:cover;">`;
             avatarDiv.style.background = "transparent";
         } else {
-            // 🛡️ VALIDACIÓN AQUÍ: Si no hay nombre, usamos "User" por defecto
             const name = profile.full_name || "Usuario Samand"; 
             
             const initials = name
                 .split(' ')
-                .filter(part => part.length > 0) // Evita errores con espacios dobles
+                .filter(part => part.length > 0)
                 .map(n => n[0])
                 .join('')
                 .toUpperCase()
                 .substring(0, 2);
 
-            avatarDiv.innerText = initials || "??"; // Fallback final
+            avatarDiv.innerText = initials || "??";
             avatarDiv.style.background = "#6366f1";
             avatarDiv.style.color = "white";
             avatarDiv.style.display = "flex";
