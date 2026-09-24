@@ -3,33 +3,30 @@ import supabase from './supabase.js';
 import { labels } from './utils.js';
 
 // ============================================================
-// SEGURIDAD, SESIÓN Y ROLES
-// ============================================================
-// ============================================================
-// SEGURIDAD, SESIÓN Y ROLES (CORREGIDO)
+// SEGURIDAD, SESIÓN Y ROLES (CORREGIDO PARA GITHUB PAGES)
 // ============================================================
 async function checkUser() {
     const { data: { user }, error } = await supabase.auth.getUser();
     
-    // Detectamos si la página actual está en una subcarpeta
+    // Detectamos si la página actual está dentro de una subcarpeta (/portal-tech/ o /portal-cliente/)
     const isSubFolder = window.location.pathname.includes('/portal-tech/') || 
                         window.location.pathname.includes('/portal-cliente/');
     
+    // Si está en subcarpeta sube con '../', si está en la raíz usa './'
     const loginPath = isSubFolder ? '../login.html' : './login.html';
 
     if (error || !user) {
         localStorage.clear();
-        window.location.href = loginPath; // 👈 RUTA RELATIVA DINÁMICA
+        window.location.href = loginPath; // 👈 ¡Adiós al 404!
         return;
     }
 
-    // 1. Mostrar nombre
+    // Resto del código intacto...
     const userDisplay = document.getElementById('user-display-name');
     if (userDisplay && user.user_metadata?.full_name) {
         userDisplay.innerText = user.user_metadata.full_name;
     }
 
-    // 2. Lógica de visibilidad por Rol
     const { data: profile } = await supabase
         .from('profiles')
         .select('role')
